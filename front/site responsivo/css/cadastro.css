@@ -92,7 +92,7 @@ body {
     justify-content: center;
     
     height: 700px;
-    gap: 200px;
+    gap: 100px;
     padding-right: 25%;
     margin-top: 50px;
 }
@@ -116,15 +116,58 @@ body {
     padding: 50px 0px;
 }
 
-.card-cadastro h1 {
-    font-size: 35px;
-    margin-bottom: 20px;
-}
-
 .card-cadastro p {
     font-size: 23px;
     margin-bottom: 10px;
 }
+
+.titulo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    width: 80%;
+}
+
+.titulo h1 {
+    font-size: 35px;
+    margin-bottom: 20px;
+}
+
+.hints {
+    display: none;
+    gap: 30px;
+
+    width: 100px;
+}
+
+.tooltip img {
+    width: 35px;
+    margin-bottom: 15px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+   
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+  }
 
 .box {
     width: 80%;
@@ -201,7 +244,38 @@ body {
     color: #D05B5B;
 }
 
-@media (max-width: 785px) {
+@media (max-width: 1500px) {
+
+    .titulo {
+        justify-content: space-between;
+    }
+
+    .hints {
+        display: flex;
+    }
+
+
+    .cadastro {
+        padding: 0;
+        margin: 0;
+    }
+
+    .coluna-1 {
+        width: 80%;
+        margin-top: 4%;
+    }
+
+    .card-cadastro {
+        width: 75%;
+        height: 80vh;
+    }
+
+    .coluna-2 {
+        display: none;
+    }
+}
+
+@media (max-width: 800px) {
     .navigation{
         padding: 18px 20px;
         width: 100%;
@@ -233,6 +307,7 @@ body {
         background: #fff;
         gap: -10px;
         transition: 0.3s;
+        z-index: 2;
     }
 
     .nav-menu.ativo{
@@ -243,22 +318,16 @@ body {
         margin: 16px 0;
     }
 
-    .cadastro {
-        padding: 0;
-        margin: 0;
-    }
-
-    .coluna-1 {
-        width: 80%;
-    }
-
     .card-cadastro {
         width: 100%;
-        height: 80vh;
         padding: none;
 
         border: none;
         box-shadow: none;
+    }
+
+    .hints {
+        z-index: 1
     }
 
     .coluna-2 {
