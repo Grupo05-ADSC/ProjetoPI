@@ -33,27 +33,27 @@
 
                 <div class="box">
                     <p>Nome</p> 
-                    <input type="text" class="input-cadastro">
+                    <input type="text" class="input-cadastro" id="input_nome">
                 </div>  
                 <div class="box">
                     <p>CNPJ</p>
-                    <input type="text" class="input-cadastro">
+                    <input type="text" class="input-cadastro" id="input_cnpj">
                 </div>
                 <div class="box">
                     <p>E-mail</p>
-                    <input type="text" class="input-cadastro">
+                    <input type="text" class="input-cadastro" id="input_email">
                 </div>
                 <div class="box">
                     <p>Senha</p>
-                    <input type="password" class="input-cadastro">
+                    <input type="password" class="input-cadastro" id="input_senha">
                 </div>
                 <div class="box">
                     <p>Confirmar Senha</p>
-                    <input type="password" class="input-cadastro">
+                    <input type="password" class="input-cadastro" id="input_confirmar_senha">
                 </div>
 
                 <div class="botao">
-                    <button class="btn-cadastrar">Cadastrar</button>
+                    <button class="btn-cadastrar" onclick="cadastrar()">Cadastrar</button>
                 </div>
             </div>
         </div>
@@ -70,5 +70,40 @@
         </div>
     </section>
     <script src="script.js"></script>
+    <script>
+        const cadastrar = () => {
+        let nome = input_nome.value
+        let email = input_email.value
+        let cnpj = input_cnpj.value
+        let senha = input_senha.value
+        let confirmar = input_confirmar_senha.value
+        let dados = {}
+        if(nome === '' || email === '' || cnpj === '' || senha === '' || confirmar === '') {
+            alert("Insira todos os dados")
+            return false
+        }else {
+            dados = {
+                nome,
+                email,
+                cnpj,
+                senha
+            }
+
+            fetch(`http://localhost:3000/cadastro`, {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify(dados)
+            }).then(function (resposta) {
+                if(dados.ok) {
+                    alert("Funfoi")
+                } else {
+                    alert('Não funfou')
+                }
+            }).catch(erro => console.log(erro))
+            }
+        }
+    </script>
 </body>
 </html>
