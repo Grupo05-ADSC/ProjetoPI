@@ -23,7 +23,7 @@ body {
     width: 100%;
     background: #000 ;
     transition: all 0.5;
-    position: fixed;
+    position: absolute;
 }
 
 .navigation .logo {
