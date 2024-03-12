@@ -106,10 +106,10 @@
                 },
                 body: JSON.stringify(dados)
             }).then(function (resposta) {
-                if(dados.ok) {
-                    alert("Funfoi")
+                if(dados) {
+                    alert("Cadastro feito com sucesso")
                 } else {
-                    alert('Não funfou')
+                    alert('Cadastro deu ruim')
                 }
             }).catch(erro => console.log(erro))
             }

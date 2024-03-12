@@ -15,11 +15,65 @@ body {
     background: #fff;
 }
 
+header {
+    width: 100%;
+    height: 160px;
+    background-color: black;
+    display: flex;
+    flex-direction: row;
+    padding: 1% 4% 0% 4%;
+}
+.header_logo {
+    width: 30%;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: left;
+}
+.header_logo h1 {
+    color: white;
+}
+.header_links {
+    width: 80%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: right;
+    justify-content: right;
+}
+.header_links ul {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 60%;
+}
+.button_link_cadastrar_header {
+    padding: 5%;
+    width: 100%;
+    color: white;
+    border-radius: 5px;
+    background-color: #5B2A86;
+}
+#lista_button_header {
+    width: 20%;
+}
+.header_links ul li {
+    text-decoration: none;
+    width: 15%;
+    margin: 0;
+}
+.header_links ul li a{
+    text-decoration: none;
+    font-style: none;
+    font-size: 18px;
+    color: white;
+}
 .navigation {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 40px;
+    padding: 3% 5% 2% 5%;
     width: 100%;
     background: #000 ;
     transition: all 0.5;
@@ -40,24 +94,35 @@ body {
     display: flex;
     align-items: center;
     gap: 5rem;
+    border: 1px solid white;
+    width: 40%;
 }
 
 .navigation ul li a {
     color: #C3C3E6;
     font-size: 17px;
     font-weight: 500;
+    width: 100%;
     transition: all 0.5;
+    font-style: none;
+    text-decoration: none;
 }
-
-.navigation ul .nav-item.button {
-    padding: 5px 15px;
-    background: #5B2A86;
-    color: #C6EBBE;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.5s;
+.navigation ul li {
+    width: 50%;
 }
+.nav-item.button {
+    width: 100%;
+  
+}
+.nav-item.button button {
+    width: 100%;
+    padding: 5%;
+    border: 0;
+    border-radius: 5px;
+    background-color: #5B2A86;
+    color: white;
 
+}
 .navigation ul li a:hover {
     color: #C6EBBE;
 }
@@ -89,15 +154,15 @@ body {
 
 .home{
     width: 100%;
-    height: 100vh;
-    display: flex;
+    height: 80vh;
     align-items: center;
+    display: flex;
     justify-content: space-between;
     padding: 0px 5%;
 }
 
 .home-text {
-    width: 900px;
+    width:70%;
 }
 
 .home-text .text-h4{
@@ -106,19 +171,21 @@ body {
     font-weight: 400;
     box-shadow: 0px 4px 4px 0px #00000040;
     padding: 15px;
-    width: 900px;
+    width: 90%;
     text-align: justify;
 }
 
 .home-text .text-h1{
     font-size: 40px;
+    width: 90%;
     margin-bottom: 1.5rem;
     text-align: justify;
     color: #5B2A86;
 }
 
 .home-btn{
-    padding: 10px 50px;
+    padding: 1.5%;
+    width: 25%;
     background: black;
     color: #fff;
     border-radius: 10px;
@@ -128,11 +195,19 @@ body {
 }
 
 .home-btn:hover {
-    background: #fc4c35;
+    background: white;
+    border: 2px solid black;
+    color: black;
 }
 
 .home-img img{
-    width: 90%;
+    width: 100%;
+}
+.home-img {
+    width: 40%;
+    display: flex;
+    align-items: center;
+    height: 50%;
 }
 
 .descricao {
@@ -314,6 +389,8 @@ footer .coluna .titulo-rodape2.redes {
         height: 100%;
         flex-direction: column;
         background: #fff;
+        display: flex;
+        align-items: center;
         gap: -10px;
         transition: 0.3s;
     }
@@ -324,8 +401,11 @@ footer .coluna .titulo-rodape2.redes {
 
     .nav-item {
         margin: 16px 0;
+        width: 100% ;
     }
-
+    .nav-item a{
+        width: 100% !important;
+    }
     .home{
         padding: 100px 2%;
         flex-direction: column;
