@@ -2,56 +2,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginMetodo {
-String realizarLogin(String nome, String senha) {
+    Boolean realizarLogin(String email, String senha) {
 
-    Integer posicaoNome = 0;
-    Integer posicaoSenha = 0;
+        Boolean login = false;
+        Boolean contemEmail = false;
 
-    Boolean validarNome = true;
-    Boolean validarSenha = true;
-    Boolean logado = true;
+        List<String>listaEmail= new ArrayList<>();
+        List<String>listaSenha = new ArrayList<>();
 
-    String mensagem="";
+        listaEmail.add("gustavo");
+        listaEmail.add("ana");
 
-        List<String> listaNomes = new ArrayList();
-        List<String> listaSenha = new ArrayList();
+        listaSenha.add("urubu100");
+        listaSenha.add("ana1");
 
+        for (int i = 0; i < listaEmail.size(); i++) {
 
-        listaNomes.add("A");
-        listaNomes.add("B");
-        listaNomes.add("C");
+            String emailAtual=listaEmail.get(i);
 
-        listaSenha.add("a");
-        listaSenha.add("b");
-        listaSenha.add("c");
+            if (emailAtual.equalsIgnoreCase(email)){
+                contemEmail = true;
 
-        if (listaNomes.indexOf(nome) == -1) {
-            validarNome = false;
-        } else {
-            posicaoNome = listaNomes.indexOf(nome);
-            validarNome = true;
-        }
+                for (int j = 0; j < listaSenha.size(); j++) {
+                    if (senha.equals(listaSenha.get(i))) {
 
+                        login = true;
 
-        for (int i = 0; i < listaSenha.size(); i++) {
-
-            posicaoSenha = listaSenha.indexOf(senha);
-
-            if (posicaoSenha.equals(posicaoNome)) {
-                validarSenha = true;
-
-            } else {
-                validarSenha = false;
+                    }
+                }
             }
-            if (validarNome == false || validarSenha == false) {
-                logado = false;
-                mensagem="Email ou Senha incorretos";
-            }else{
-                mensagem="Login feito com sucesso";
-            }
-
         }
-        return mensagem;
-}
+        return login;
+    }
 }
 

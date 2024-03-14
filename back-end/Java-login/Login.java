@@ -2,19 +2,30 @@
 import java.util.Scanner;
 public class Login {
     public static void main(String[] args) {
+            LoginMetodo metodo = new LoginMetodo();
+            String email = "";
+            String senha = "";
 
-        LoginMetodo metodo = new LoginMetodo();
-
-        Scanner input = new Scanner(System.in);
+        do {
 
 
-        System.out.println("Insira seu email:");
-        String nome = input.nextLine();
-        System.out.println("Insira sua senha:");
-        String senha = input.nextLine();
+            Scanner input = new Scanner(System.in);
 
-        System.out.println(metodo.realizarLogin(nome,senha));
 
+            System.out.println("Insira seu email:");
+             email = input.nextLine();
+
+            System.out.println("Insira sua senha:");
+             senha = input.nextLine();
+
+            if (metodo.realizarLogin(email, senha) == true) {
+                System.out.println("Login realizado com sucesso ...");
+
+            } else {
+                System.out.println("Email ou senha incorretos ...\n");
+            }
+
+        }while (metodo.realizarLogin(email, senha)!=true);
     }
 }
 
