@@ -88,8 +88,21 @@
         let senha = input_senha.value
         let confirmar = input_confirmar_senha.value
         let dados = {}
+        
         if(nome === '' || email === '' || cnpj === '' || senha === '' || confirmar === '') {
             alert("Insira todos os dados")
+            return false
+        }else if(senha.length < 8) {
+            alert("Senha tem que ser maior que 8")
+            return false
+        }else if(senha != confirmar){
+            alert("Senhas diferentes")
+            return false
+        }else if(!email.endsWith(".com")) {
+            alert("E-mail tem que terminar com '.com'")
+            return false
+        }else if(cnpj.length < 14){
+            alert("Cnpj tem que ser 14")
             return false
         }else {
             dados = {

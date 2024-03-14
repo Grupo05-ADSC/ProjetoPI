@@ -37,13 +37,12 @@
                 </div>
                 <div class="box">
                     <p>Nova senha</p>
-                    <input type="password" class="input-redefinir">
+                    <input type="password" class="input-redefinir" id="input_senha">
                 </div>
                 <div class="box">
                     <p>Confirmar Senha</p>
-                    <input type="password" class="input-redefinir">
+                    <input type="password" class="input-redefinir" id="input_senha_repetir">
                 </div>
-
                 <div class="botao">
                     <button class="btn-redefinir">Redefinir</button>
                 </div>
@@ -52,5 +51,27 @@
     </section>
     <script src="script.js"></script>
 </body>
+<script>
+    function Redefinir() {
+        let senha = input_senha.value
+        let repetirSenha = input_senha_repetir.value
+        let idUsuario = 0;
 
+        if(senha != repetirSenha) {
+            alert("Senhas diferentes")
+        }else {
+            fetch(`/recuperarSenha/${idUsuario}`, {
+                method:"PUT",
+                body: JSON.parse(senha)
+            })
+            .then(function(resposta) {
+                if(resposta.ok) {
+                    alert("Senha foi trocada")
+                }else {
+                    alert("Senha não foi trocada")
+                }
+            }).catch(erro => console.log(erro))
+        }
+    }
+</script>
 </html>
