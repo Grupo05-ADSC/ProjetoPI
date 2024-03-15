@@ -10,14 +10,18 @@
 
 .slider {
     margin: 0 auto;
-    width: 800px;
-    height: 400px;
+    max-width: 80%;
+    height: 80%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.185);
 }
 
 .slides {
     width: 400%;
-    height: 400px;
+    height: 100%;
     display: flex;
 }
 
@@ -32,23 +36,31 @@
 }
 
 .slide img {
-    width: 800px;
+    height: 100%;
+    max-width: 50%;
 }
 
 .manual-navigation {
+    padding: 2%;
+    z-index: 999;
     position: absolute;
-    width: 800px;
-    margin-top: -40px;
+    bottom: 0;
     display: flex;
+    width: 50%;
+    align-items: center;
     justify-content: center;
 }
 
 .manual-btn {
-    border: 2px solid #FFF;
-    padding: 5px;
+    border: 2px solid black;
+    background-color: white;
+    padding: 1%;
     border-radius: 10px;
     cursor: pointer;
     transition: 1s;
+}
+.manual-btn:focus {
+    background-color: black;
 }
 
 .manual-btn:not(:last-child) {
@@ -103,4 +115,28 @@
 }
 #radio4:checked ~ .navigation-auto .auto-btn4 {
     background-color: #FFF;
+}
+.div_descricao_carrosel {
+    width: 60%;
+    z-index: 999;
+    background-color: white;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 3%;
+    height: 100%;
+}
+.div_titulo_carrosel {
+    width: 100%;
+    height: 10%;
+}
+.div_p_carrosel {
+    width: 100%;
+    height: 100%;
+    text-align: justify;
+    display: flex;
+    margin-top: 2%;
 }
