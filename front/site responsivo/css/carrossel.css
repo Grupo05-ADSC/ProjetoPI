@@ -52,15 +52,12 @@
 }
 
 .manual-btn {
-    border: 2px solid black;
+    border: transparent;
     background-color: white;
     padding: 1%;
     border-radius: 10px;
     cursor: pointer;
     transition: 1s;
-}
-.manual-btn:focus {
-    background-color: black;
 }
 
 .manual-btn:not(:last-child) {
