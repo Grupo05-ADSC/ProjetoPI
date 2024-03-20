@@ -6,19 +6,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Conexao {
-    public void logarUser(String email, String senha) {
-        if (email.isEmpty() || senha.isEmpty()) {
+    public static void logarUser(String email, String senha) {
+        if (email == "" || senha == "") {
             System.out.println("Login inválido");
             return;
         }
         Connection conexaoBanco = null;
-        try {
+        try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "root123");
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("select * from usuario");
-            while((respostaServer).next()) {
+            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
+                    select * from usuario where email = '%s' and senha = '%s'
+                    """.formatted(email, senha));
+            if(respostaServer.next()) {
                 Usuario usuario = new Usuario();
                 usuario.respostaUser(respostaServer, email, senha);
+            }else {
+                System.out.println("E-mail ou senha incorretos");
             }
         } catch (ClassNotFoundException | SQLException ex) {
             System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
