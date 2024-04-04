@@ -1,5 +1,8 @@
 package org.example;
 
+import com.github.britooo.looca.api.core.Looca;
+import com.github.britooo.looca.api.group.sistema.Sistema;
+
 import java.util.Scanner;
 
 public class Main {
@@ -7,7 +10,6 @@ public class Main {
         Usuario usuario = new Usuario();
 
         Scanner perguntaUser = new Scanner(System.in);
-
         System.out.println("Qual é o e-mail?");
         String email = perguntaUser.nextLine();
         System.out.println("Qual é o senha?");
