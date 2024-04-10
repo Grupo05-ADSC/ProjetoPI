@@ -1,7 +1,7 @@
 const db = require("./db/db")
 
 const login = (email, senha) => {
-    const instrucao = `SELECT * FROM usuario where email = "${email} and senha = "${senha}"`
+    const instrucao = `SELECT * FROM usuario where email = "${email}" and senha = "${senha}"`
     return db.executar(instrucao)
 }
 const cadastro = (nome,email,senha,cnpj) => {

@@ -9,17 +9,16 @@ const login = (req, res) => {
     }else {
         usuarioModal.login(email, senha)
         .then(function(resposta) {
-            if(resposta.length > 0) {
-                usuarioModal.informacoes(resposta[0].idUsuario)
-                .then(function(item) {
-                        res.json({
-                        idUsuario: item[0].idUsuario,
-                        Maquinas: item[0].maquinas
-                    })
-                })
-            }else {
-                return res.json({error:"Usuario não tem cadastro"})
-            }
+           if(resposta && resposta.length === 1) {
+                return res.json(
+                {
+                idUsuario: resposta[0].idUsuario,
+                nome: resposta[0].nome
+                }
+                )
+           }else {
+             return res.status(500).json({messege: "Resposta no banco foi erro"})
+           }
         }).catch(erro => {
             console.log("Ocorreu um erro no back-end" + erro)
         })
