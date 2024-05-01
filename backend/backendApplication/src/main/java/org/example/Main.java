@@ -9,15 +9,15 @@ public class Main {
     public static void main(String[] args) {
         Usuario usuario = new Usuario();
 
-        SwingUtilities.invokeLater(() -> {
-            Tela telaLogin = new Tela();
-            telaLogin.setVisible(true);
-        });
+      SwingUtilities.invokeLater(() -> {
+          Tela telaLogin = new Tela();
+          telaLogin.setVisible(true);
+           });
 
         Scanner perguntaUser = new Scanner(System.in);
-        System.out.println("Qual é o e-mail?");
+        System.out.println("Qual seria o e-mail?");
         String email = perguntaUser.nextLine();
-        System.out.println("Qual é o senha?");
+        System.out.println("Qual seria a senha?");
         String senha = perguntaUser.nextLine();
 
         String respostaBanco = usuario.validarUser(email, senha);

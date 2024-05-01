@@ -24,9 +24,9 @@ public class Conexao {
         Connection conexaoBanco = null;
         try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "root123");
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://172.31.84.235/projeto_pi", "aluno", "aluno100");
             ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
-                    select * from usuario where email = '%s' and senha = '%s'
+                    select * from empresa where email = '%s' and senha = '%s'
                     """.formatted(email, senha));
             if(respostaServer.next()) {
                 Usuario usuario = new Usuario();
@@ -47,7 +47,7 @@ public class Conexao {
         }
     }
     public Memoria ComponenteMemoria(Memoria memoria, Processador processador, ServicoGrupo servicoGrupo,
-                                     JanelaGrupo janelaGrupo, DiscoGrupo discoGrupo, Sistema sistema, List processoGrupo) {
+                                     JanelaGrupo janelaGrupo, DiscoGrupo discoGrupo, Sistema sistema, List processoGrupo, String IP, String hostName) {
         Connection conexaoBanco = null;
         String dadosMemoria = String.valueOf(memoria);
         String dadosProcessador = String.valueOf(processador);
@@ -58,10 +58,13 @@ public class Conexao {
         String dadosProcesso = String.valueOf(processoGrupo);
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "root123");
+             String url = ("jdbc:mysql://172.31.84.235/projeto_pi");
+             String nomeBanco = "aluno";
+             String senhaBanco = "aluno100";
+            conexaoBanco = DriverManager.getConnection(url,nomeBanco,senhaBanco);
            Integer respostaServer = conexaoBanco.createStatement().executeUpdate("""
-                    insert into componentes values(null,"%s","%s","%s","%s","%s","%s","%s");
-                    """.formatted(dadosMemoria, dadosProcessador, dadosServico, dadosJanela, dadosSistema, dadosDisco, dadosProcesso));
+                    insert into registro values("%s","%s","%s","%s","%s","%s","%s","%s","%s");
+                    """.formatted(IP,dadosMemoria, dadosProcessador, dadosServico, dadosJanela, dadosSistema, dadosDisco, dadosProcesso, hostName));
             if(respostaServer == 1 || respostaServer.equals(1)) {
                 System.out.println("Dados Capturados");
             }else {
@@ -69,7 +72,6 @@ public class Conexao {
             }
         }catch (ClassNotFoundException | SQLException ex){
             System.out.println(ex);
-
         }finally {
            try {
                if(conexaoBanco != null ){
