@@ -5,7 +5,7 @@ const login = (email, senha) => {
     return db.executar(instrucao)
 }
 const cadastro = (nome,email,senha,cnpj) => {
-    const instrucao = `INSERT INTO usuario(nome,email,senha,cnpj) VALUES('${nome}','${email}','${senha}',${cnpj});`
+    const instrucao = `INSERT INTO empresa(nomeEmpresa,email,senha,cnpj) VALUES('${nome}','${email}','${senha}',${cnpj});`
     return db.executar(instrucao)
 }
 const redefinirSenha = (senha, idUsuario) => {

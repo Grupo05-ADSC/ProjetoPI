@@ -3,7 +3,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.github.britooo.looca.api.core.Looca;
+import com.github.britooo.looca.api.group.discos.Disco;
 import com.github.britooo.looca.api.group.discos.DiscoGrupo;
+import com.github.britooo.looca.api.group.discos.Volume;
+import com.github.britooo.looca.api.group.janelas.Janela;
 import com.github.britooo.looca.api.group.janelas.JanelaGrupo;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
@@ -25,15 +28,25 @@ public class Componentes {
         RedeParametros redeParametros = looca.getRede().getParametros();
         Memoria memoria = looca.getMemoria();
         Processador processador = looca.getProcessador();
-        ProcessoGrupo processoGrupo = looca.getGrupoDeProcessos();
         ServicoGrupo servicoGrupo = looca.getGrupoDeServicos();
-        JanelaGrupo janelaGrupo = looca.getGrupoDeJanelas();
-        DiscoGrupo discoGrupo = looca.getGrupoDeDiscos();
+        //Janela, tem titulo do da janela
+        List<Janela> janelaGrupo = looca.getGrupoDeJanelas().getJanelas();
+        //Disco do computador
+        List<Disco> discoGrupo = looca.getGrupoDeDiscos().getDiscos();
+
+        //Sistema
         Sistema sistema = looca.getSistema();
+        //Hostname da maquina
         String hostName = looca.getRede().getParametros().getHostName();
 
-        String IP = "";
+        //Lista de processos
+        ProcessoGrupo processoGrupo = looca.getGrupoDeProcessos();
         List<Processo> listaDeProcessos = processoGrupo.getProcessos();
+
+        Integer pid = 0;
+        String IP = "";
+        String memoriaEmUso = extrairProcessadorEmUso(processador);
+        String identificador = extrairIdentificadorMaquina(processador);
 
         try {
             InetAddress inetAddress = InetAddress.getLocalHost();
@@ -50,13 +63,19 @@ public class Componentes {
             if (memoriaVirtual > maiorMemoriaVirtual) {
                 maiorMemoriaVirtual = memoriaVirtual;
                 pidMaiorMemoriaVirtual = processo.getPid();
+                pid = pidMaiorMemoriaVirtual;
             }
         }
         List dadosInformados = new ArrayList<>();
         dadosInformados.add(maiorMemoriaVirtual);
         dadosInformados.add(pidMaiorMemoriaVirtual);
 
-        conexao.ComponenteMemoria(memoria, processador, servicoGrupo, janelaGrupo, discoGrupo, sistema, dadosInformados,IP, hostName);
+        String respostaConexaoHost = conexao.verificarMaquina(hostName);
+        if(respostaConexaoHost.equals("Maquina não existe")) {
+            conexao.cadastrarMaquina(hostName);
+        }else {
+            conexao.ComponenteMemoria(memoria, processador, servicoGrupo, janelaGrupo, discoGrupo, sistema, pid,IP, hostName);
+        }
     }
     private long extrairMemoriaVirtual(Processo processo) {
         String[] partes = processo.toString().split("Memória virtual utilizada: ");
@@ -70,4 +89,48 @@ public class Componentes {
         }
         return 0;
     }
-}
+        public String extrairProcessadorEmUso(Processador processador) {
+            String linhasTeste = processador.toString();
+
+            String[] linhas = linhasTeste.split("\\r?\\n");
+
+            for (String linha : linhas) {
+                if (linha.contains("Em Uso:")) {
+                    String[] partes = linha.split(":");
+
+                    if (partes.length > 1) {
+                        String valorEmUso = partes[1].trim();
+                        return valorEmUso;
+                    } else {
+                        System.out.println("Formato incorreto para 'Em Uso:'");
+                    }
+                }
+            }
+
+            System.out.println("'Em Uso:' não encontrado");
+            return "";
+        }
+    public String extrairIdentificadorMaquina(Processador processador) {
+        String linhasTeste = processador.toString();
+
+        String[] linhas = linhasTeste.split("\\r?\\n");
+
+        for (String linha : linhas) {
+            if (linha.contains("ID:")) {
+                String[] partes = linha.split(":");
+
+                if (partes.length > 1) {
+                    String valorEmUso = partes[1].trim();
+                    return valorEmUso;
+                } else {
+                    System.out.println("Formato incorreto para 'ID:'");
+                }
+            }
+        }
+
+        System.out.println("'ID:' não encontrado");
+        return "";
+    }
+    }
+
+
