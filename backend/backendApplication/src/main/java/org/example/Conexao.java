@@ -14,7 +14,7 @@ public class Conexao {
         Connection conexaoBanco = null;
         try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "root123");
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "@Dedomindinho22");
             ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
                     select * from usuario where email = '%s' and senha = '%s'
                     """.formatted(email, senha));
