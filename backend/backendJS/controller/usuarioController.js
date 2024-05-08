@@ -1,5 +1,29 @@
 const usuarioModal = require("../modal/usuarioModal")
 
+
+const login = (req, res) => {
+    const {email, senha} = req.body;
+
+    if(email === "" || senha === "") {
+        return res.json({error: "Variaveis vazias"})
+    }else {
+        usuarioModal.login(email, senha)
+        .then(function(resposta) {
+           if(resposta && resposta.length === 1) {
+                return res.json(
+                {
+                idUsuario: resposta[0].idUsuario,
+                nome: resposta[0].nome
+                }
+                )
+           }else {
+             return res.status(500).json({messege: "Resposta no banco foi erro"})
+           }
+        }).catch(erro => {
+            console.log("Ocorreu um erro no back-end" + erro)
+        })
+    }
+}
 const cadastro = (req, res) => {
     const {nome,email, senha, cnpj} = req.body
 
@@ -35,7 +59,23 @@ const redefinirSenha = (req, res) => {
         }).catch(erro => console.log(erro))
     }
 }
+const informacoes = (req, res) => {
+    const idUsuario = params.idUsuario
+
+    if(idUsuario === undefined || idUsuario == "") {
+        return res.json({error: "O idUsuario está undefined"})
+    }else {
+        usuarioModal.informacoes(idUsuario)
+        .then(function(resposta) {
+            return res.json(resposta)
+        }).catch(erro => {
+            console.log("Ocorreu um erro no backend" + erro)
+        })
+    }
+}
 module.exports = {
     cadastro,
-    redefinirSenha
+    redefinirSenha,
+    login,
+    informacoes
 }

@@ -10,4 +10,10 @@ router.post("/cadastro", (req,res) => {
 router.put("/recuperarSenha/:idUsuario", (req,res) => {
     usuarioController.redefinirSenha(req,res)
 })
+router.post("/login", (req, res) => {
+    usuarioController.login(req,res)
+})
+router.get("/informacoes/:idUsuario", (req, res) => {
+    usuarioController.informacoes(req, res);
+})
 module.exports = router
