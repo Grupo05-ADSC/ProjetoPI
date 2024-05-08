@@ -30,7 +30,7 @@ public class Conexao {
         Connection conexaoBanco = null;
         try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://52.3.248.131/sisguard", "aluno", "Aluno123!");
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
             ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
                     select * from empresa where email = '%s' and senha = '%s'
                     """.formatted(email, senha));
@@ -59,7 +59,7 @@ public class Conexao {
         }else {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                conexao = DriverManager.getConnection("jdbc:mysql://52.3.248.131/sisguard", "aluno", "Aluno123!");
+                conexao = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
                 ResultSet respostaMaquina = conexao.createStatement().executeQuery("""
                         SELECT * FROM maquina where hostname = "%s"
                         """.formatted(hostname));
@@ -86,7 +86,7 @@ public class Conexao {
         Connection conexao = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = ("jdbc:mysql://52.3.248.131/sisguard");
+            String url = ("jdbc:mysql://44.194.8.163/sisguard");
             String nomeBanco = "aluno";
             String senhaBanco = "Aluno123!";
 
@@ -127,7 +127,7 @@ public class Conexao {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-             String url = ("jdbc:mysql://52.3.248.131/sisguard");
+             String url = ("jdbc:mysql://44.194.8.163/sisguard");
              String nomeBanco = "aluno";
              String senhaBanco = "Aluno123!";
             conexaoBanco = DriverManager.getConnection(url,nomeBanco,senhaBanco);
@@ -157,7 +157,7 @@ public class Conexao {
         Integer idMaquina = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://52.3.248.131/sisguard";
+            String url = "jdbc:mysql://44.194.8.163/sisguard";
             String nomeBanco = "aluno";
             String senhaBanco = "Aluno123!";
             conexao = DriverManager.getConnection(url, nomeBanco, senhaBanco);
