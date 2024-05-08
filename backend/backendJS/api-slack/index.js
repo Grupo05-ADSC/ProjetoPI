@@ -3,7 +3,7 @@ const { channel } = require("diagnostics_channel");
 
 // Função para enviar a mensagem para o Slack
 function enviarMensagem() {
-    axios.post("https://hooks.slack.com/services/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", {
+    axios.post("https://hooks.slack.com/services/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", {
         username: 'Máquina 01', // Variavel nome do Bot que o cliente coloca
         channel:"C06KZSZV72B", // Variavel canal que o cliente escolhe
         text: "!!! Alerta automático de 5 em 5 segundos!!!" //Variável de texto de acordo com o que for capturado
