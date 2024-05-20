@@ -12,6 +12,4 @@ router.post("/cadastro/:idDarkStore", (req, res) => {
 router.delete("/deletarFuncionario/:idMaquina", (req, res) => {
     funcionarioController.deletar(req, res)
 })
-module.exports = {
-    funcionarioController
-}
+module.exports = router

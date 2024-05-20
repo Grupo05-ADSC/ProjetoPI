@@ -21,7 +21,6 @@ import java.util.List;
 public class Conexao {
     public Integer idDark;
     public Integer idEmpresa;
-
     public static void logarUser(String email, String senha) {
         if (email == "" || senha == "") {
             System.out.println("Login inválido");

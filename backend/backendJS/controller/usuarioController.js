@@ -12,8 +12,8 @@ const login = (req, res) => {
            if(resposta && resposta.length === 1) {
                 return res.json(
                 {
-                idUsuario: resposta[0].idUsuario,
-                nome: resposta[0].nome
+                idEmpresa: resposta[0].idEmpresa,
+                nomeEmpresa: resposta[0].nomeEmpresa
                 }
                 )
            }else {
@@ -41,20 +41,17 @@ const cadastro = (req, res) => {
     }
 }
 const redefinirSenha = (req, res) => {
-    const {senha} = req.body
-    const idUsuario = params.body.idUsuario
+    const {email, senha} = req.body
 
-    if(senha === undefined || senha === null || senha === "") {
-        return res.status(400).json({error: "Senha está undefined"})
-    }else if(senha === idUsuario || idUsuario === null || idUsuario === "") {
-        return res.status(400).json({error: "Senha está undefined"})
+    if(senha === null || senha === "" ||email === null || email === "") {
+        return res.status(400).json({error: "Senha ou email está undefined"})
     }else {
-        usuarioModal.redefinirSenha(senha, idUsuario)
+        usuarioModal.redefinirSenha(senha, email)
         .then(function(resposta) {
             if(resposta) {
-                return res.status(200).json({error: "A resposta foi boa no controller" + resposta})
+                return res.json({error: "A resposta foi boa no controller"})
             }else {
-                return res.status(500).json({error: "A resposta foi ruim no controller" + resposta})
+                return res.json({error: "A resposta foi ruim no controller"})
             }
         }).catch(erro => console.log(erro))
     }
