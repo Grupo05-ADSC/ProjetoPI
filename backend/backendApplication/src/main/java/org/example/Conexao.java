@@ -12,16 +12,40 @@ import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
 import com.github.britooo.looca.api.group.temperatura.Temperatura;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class Conexao {
     public Integer idDark;
     public Integer idEmpresa;
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> b6c7587eff0cbf609f2c64ea19e945ea0087fec3
     public static void logarUser(String email, String senha) {
+
+        String data = "";
+
+        String logLevel = ""; //error warning
+
+        Integer statusCode = 0; //404 exemplo
+
+        String mensagem = "";
+
+//        Integer idMaquina = 0;
+//
+//        String hostname = "";
+
+        String stackTrace = "";
+
         if (email == "" || senha == "") {
             System.out.println("Login inválido");
             return;
@@ -29,7 +53,11 @@ public class Conexao {
         Connection conexaoBanco = null;
         try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
+
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "");
+
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "aluninho123!");
+
             ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
                     select * from empresa where email = '%s' and senha = '%s'
                     """.formatted(email, senha));
@@ -41,6 +69,18 @@ public class Conexao {
             }
         } catch (ClassNotFoundException | SQLException ex) {
             System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+            data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date());
+            logLevel = "ERROR";
+            statusCode = 503;
+            mensagem = "Falha ao conectar com banco de dados";
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
+
+            Log errorbanco = new Log(data, logLevel, statusCode, mensagem, stackTrace);
+            System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+
         } finally {
             try {
                 if (conexaoBanco != null) {
