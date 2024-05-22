@@ -25,11 +25,7 @@ import java.util.List;
 public class Conexao {
     public Integer idDark;
     public Integer idEmpresa;
-<<<<<<< HEAD
-=======
 
-
->>>>>>> b6c7587eff0cbf609f2c64ea19e945ea0087fec3
     public static void logarUser(String email, String senha) {
 
         String data = "";

@@ -13,7 +13,8 @@ const login = (req, res) => {
                 return res.json(
                 {
                 idEmpresa: resposta[0].idEmpresa,
-                nomeEmpresa: resposta[0].nomeEmpresa
+                nomeEmpresa: resposta[0].nomeEmpresa,
+                email: resposta[0].email
                 }
                 )
            }else {
