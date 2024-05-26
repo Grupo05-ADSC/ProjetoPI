@@ -2,16 +2,12 @@ package org.example;
 
 import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.discos.Disco;
-import com.github.britooo.looca.api.group.discos.DiscoGrupo;
-import com.github.britooo.looca.api.group.discos.Volume;
 import com.github.britooo.looca.api.group.janelas.Janela;
-import com.github.britooo.looca.api.group.janelas.JanelaGrupo;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
-import com.github.britooo.looca.api.group.processos.ProcessoGrupo;
 import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
-import com.github.britooo.looca.api.group.temperatura.Temperatura;
+import org.example.log.Log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -54,7 +50,7 @@ public class Conexao {
         try  {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "M!ch3l1y");
+            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "");
 
 //            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/projeto_pi", "aluno", "aluninho123!");
 
@@ -80,7 +76,6 @@ public class Conexao {
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
             stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
-
             Log errorbanco = new Log(data, logLevel, statusCode, mensagem, stackTrace, sistemaOperacional, arquitetura, hostname);
             System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
 

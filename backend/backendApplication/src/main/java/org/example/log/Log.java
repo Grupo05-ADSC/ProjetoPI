@@ -1,4 +1,4 @@
-package org.example;
+package org.example.log;
 
 public class Log {
     private String data;
@@ -11,13 +11,13 @@ public class Log {
 
     private Integer idMaquina;
 
-    private String hostname;
-
     private String stackTrace;
 
     private String sistemaOperacional;
 
     private Integer arquitetura;
+
+    private String hostname;
 
     public Log(String data, String logLevel, Integer statusCode, String mensagem, Integer idMaquina, String stackTrace, String sistemaOperacional, Integer arquitetura, String hostname) {
         this.data = data;
@@ -36,6 +36,7 @@ public class Log {
         this.logLevel = logLevel;
         this.statusCode = statusCode;
         this.mensagem = mensagem;
+        this.hostname = hostname;
         this.stackTrace = stackTrace;
         this.sistemaOperacional = sistemaOperacional;
         this.arquitetura = arquitetura;
