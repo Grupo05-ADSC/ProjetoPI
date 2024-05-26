@@ -9,8 +9,7 @@ import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
 import org.example.log.Log;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -35,6 +34,8 @@ public class Conexao {
         String logLevel = ""; //error warning
 
         Integer statusCode = 0; //404 exemplo
+
+        String idMaquina = "";
 
         String mensagem = "";
 
@@ -71,13 +72,21 @@ public class Conexao {
             data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date());
             logLevel = "ERROR";
             statusCode = 503;
-            mensagem = "Falha ao conectar com banco de dados";
+            idMaquina = "";
+            mensagem = "Erro ao conectar ao banco de dados: " + ex.getMessage();
+
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
             stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
-            Log errorbanco = new Log(data, logLevel, statusCode, mensagem, stackTrace, sistemaOperacional, arquitetura, hostname);
+            Log errorbanco = new Log(sistemaOperacional, arquitetura, hostname, data, logLevel, statusCode, idMaquina, mensagem, stackTrace);
             System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+
+            try(FileWriter writer = new FileWriter(".\\errorbanco.txt", true)){
+                writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+            }catch (IOException u){
+                System.out.println("Erro ao gerar log" + u.getMessage());
+            }
 
         } finally {
             try {
