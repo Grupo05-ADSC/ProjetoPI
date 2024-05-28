@@ -1,19 +1,15 @@
 package org.example;
 
+import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.discos.Disco;
-import com.github.britooo.looca.api.group.discos.DiscoGrupo;
-import com.github.britooo.looca.api.group.discos.Volume;
 import com.github.britooo.looca.api.group.janelas.Janela;
-import com.github.britooo.looca.api.group.janelas.JanelaGrupo;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
-import com.github.britooo.looca.api.group.processos.ProcessoGrupo;
 import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
-import com.github.britooo.looca.api.group.temperatura.Temperatura;
+import org.example.log.Log;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -27,6 +23,11 @@ public class Conexao {
     public Integer idEmpresa;
 
     public static void logarUser(String email, String senha) {
+        Looca looca = new Looca();
+
+        String sistemaOperacional = "";
+
+        Integer arquitetura = 0;
 
         String data = "";
 
@@ -34,11 +35,11 @@ public class Conexao {
 
         Integer statusCode = 0; //404 exemplo
 
+        String idMaquina = "";
+
         String mensagem = "";
 
-//        Integer idMaquina = 0;
-//
-//        String hostname = "";
+        String hostname = "";
 
         String stackTrace = "";
 
@@ -52,7 +53,7 @@ public class Conexao {
 
             conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "");
 
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "aluninho123!");
+//            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/projeto_pi", "aluno", "aluninho123!");
 
             ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
                     select * from empresa where email = '%s' and senha = '%s'
@@ -65,17 +66,27 @@ public class Conexao {
             }
         } catch (ClassNotFoundException | SQLException ex) {
             System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+            sistemaOperacional = looca.getSistema().getSistemaOperacional();
+            arquitetura = looca.getSistema().getArquitetura();
+            hostname = looca.getRede().getParametros().getHostName();
             data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date());
             logLevel = "ERROR";
             statusCode = 503;
-            mensagem = "Falha ao conectar com banco de dados";
+            idMaquina = "";
+            mensagem = "Erro ao conectar ao banco de dados: " + ex.getMessage();
+
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
             stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
-
-            Log errorbanco = new Log(data, logLevel, statusCode, mensagem, stackTrace);
+            Log errorbanco = new Log(sistemaOperacional, arquitetura, hostname, data, logLevel, statusCode, idMaquina, mensagem, stackTrace);
             System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+
+            try(FileWriter writer = new FileWriter(".\\errorbanco.txt", true)){
+                writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+            }catch (IOException u){
+                System.out.println("Erro ao gerar log" + u.getMessage());
+            }
 
         } finally {
             try {
@@ -94,7 +105,7 @@ public class Conexao {
         }else {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                conexao = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
+                conexao = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "M!ch3l1y");
                 ResultSet respostaMaquina = conexao.createStatement().executeQuery("""
                         SELECT * FROM maquina where hostname = "%s"
                         """.formatted(hostname));
@@ -121,9 +132,9 @@ public class Conexao {
         Connection conexao = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = ("jdbc:mysql://44.194.8.163/sisguard");
-            String nomeBanco = "aluno";
-            String senhaBanco = "Aluno123!";
+            String url = ("jdbc:mysql://localhost/projeto_pi");
+            String nomeBanco = "root";
+            String senhaBanco = "M!ch3l1y";
 
             conexao = DriverManager.getConnection(url,nomeBanco,senhaBanco);
             Integer respostaBanco = conexao.createStatement().executeUpdate("""
@@ -162,9 +173,9 @@ public class Conexao {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-             String url = ("jdbc:mysql://44.194.8.163/sisguard");
-             String nomeBanco = "aluno";
-             String senhaBanco = "Aluno123!";
+             String url = ("jdbc:mysql://localhost/projeto_pi");
+             String nomeBanco = "root";
+             String senhaBanco = "M!ch3l1y";
             conexaoBanco = DriverManager.getConnection(url,nomeBanco,senhaBanco);
            Integer respostaServer = conexaoBanco.createStatement().executeUpdate("""
                     insert into registro(cpuPorcentagem, ramPorcentagem, discoPorcentagem, pid, fkMaquinaDarksore,fkMaquina) values("%s","%s","%s",%d,%d,%d);
@@ -192,9 +203,9 @@ public class Conexao {
         Integer idMaquina = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://44.194.8.163/sisguard";
-            String nomeBanco = "aluno";
-            String senhaBanco = "Aluno123!";
+            String url = "jdbc:mysql://localhost/projeto_pi";
+            String nomeBanco = "root";
+            String senhaBanco = "M!ch3l1y";
             conexao = DriverManager.getConnection(url, nomeBanco, senhaBanco);
 
             ResultSet respostaServer = conexao.createStatement().executeQuery(
