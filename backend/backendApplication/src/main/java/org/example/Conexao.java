@@ -1,16 +1,11 @@
 package org.example;
 
 import com.github.britooo.looca.api.group.discos.Disco;
-import com.github.britooo.looca.api.group.discos.DiscoGrupo;
-import com.github.britooo.looca.api.group.discos.Volume;
 import com.github.britooo.looca.api.group.janelas.Janela;
-import com.github.britooo.looca.api.group.janelas.JanelaGrupo;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
-import com.github.britooo.looca.api.group.processos.ProcessoGrupo;
 import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
-import com.github.britooo.looca.api.group.temperatura.Temperatura;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,105 +17,79 @@ public class Conexao {
     public Integer idDark;
     public Integer idEmpresa;
 
+    private static final String urlNuvem = "jdbc:mysql://44.194.8.163/sisguard";
+    private static final String userNuvem = "aluno";
+    private static final String senhaNuvem = "Aluno123!";
+
     public static void logarUser(String email, String senha) {
-        if (email == "" || senha == "") {
+        if (email.isEmpty() || senha.isEmpty()) {
             System.out.println("Login inválido");
             return;
         }
-        Connection conexaoBanco = null;
-        try  {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-<<<<<<< HEAD
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://localhost/projeto_pi", "root", "@Dedomindinho22");
-=======
-            conexaoBanco = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
->>>>>>> 431527293e2ce2bea7d9a43a76ae303dc72cc7e9
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery("""
-                    select * from empresa where email = '%s' and senha = '%s'
-                    """.formatted(email, senha));
-            if(respostaServer.next()) {
+        try (Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)){
+
+//             Consulta e validação na nuvem
+            ResultSet respostaServerNuvem = conexaoBancoNuvem.createStatement().executeQuery(
+                    "SELECT * FROM empresa WHERE email = '%s' AND senha = '%s'".formatted(email, senha));
+            if (respostaServerNuvem.next()) {
                 Usuario usuario = new Usuario();
-                usuario.respostaUser(respostaServer, email, senha);
-            }else {
-                System.out.println("E-mail ou senha incorretos");
+                usuario.respostaUser(respostaServerNuvem, email, senha);
+            } else {
+                System.out.println("E-mail ou senha incorretos na nuvem");
             }
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
             System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        } finally {
-            try {
-                if (conexaoBanco != null) {
-                    conexaoBanco.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println("Erro ao fechar a conexão: " + ex.getMessage());
-            }
         }
     }
+
     public String verificarMaquina(String hostname) {
-        Connection conexao = null;
-        if(hostname.equals("")) {
+        if (hostname.isEmpty()) {
             return "host vazio";
-        }else {
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                conexao = DriverManager.getConnection("jdbc:mysql://44.194.8.163/sisguard", "aluno", "Aluno123!");
-                ResultSet respostaMaquina = conexao.createStatement().executeQuery("""
-                        SELECT * FROM maquina where hostname = "%s"
-                        """.formatted(hostname));
-                if(respostaMaquina.next()) {
+        } else {
+            try
+                    (Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+
+                ResultSet respostaMaquinaNuvem = conexaoNuvem.createStatement().executeQuery(
+                        "SELECT * FROM maquina WHERE hostname = '%s'".formatted(hostname));
+
+
+                if (
+                        respostaMaquinaNuvem.next()
+                ) {
                     return "Maquina existe";
-                }else {
+                } else {
                     return "Maquina não existe";
                 }
-            }catch (ClassNotFoundException | SQLException e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
-            }finally {
-               try{
-                   if(conexao != null) {
-                       conexao.close();
-                   }
-               }catch (SQLException ex) {
-                   System.out.println(ex.getMessage());
-               }
             }
         }
         return null;
     }
+
+
     public String cadastrarMaquina(String hostname) {
-        Connection conexao = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = ("jdbc:mysql://44.194.8.163/sisguard");
-            String nomeBanco = "aluno";
-            String senhaBanco = "Aluno123!";
+        try (
+                Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
 
-            conexao = DriverManager.getConnection(url,nomeBanco,senhaBanco);
-            Integer respostaBanco = conexao.createStatement().executeUpdate("""
-                    INSERT INTO maquina VALUES(NULL, "%s", 1)
-                    """.formatted(hostname));
+            Integer respostaBancoNuvem = conexaoNuvem.createStatement().executeUpdate(
+                    "INSERT INTO maquina VALUES(NULL, '%s', 1)".formatted(hostname));
 
-            if(respostaBanco.equals(1)) {
+
+            if (respostaBancoNuvem.equals(1)){
                 Componentes componentes = new Componentes();
-                componentes.Memoria();
-            }else {
+                componentes.capturarDados();
+            } else {
                 return "Maquina não cadastrada";
             }
-        }catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
-        }finally {
-            try{
-                if (conexao != null) {
-                    conexao.close();
-                }
-            }catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
         }
         return null;
     }
+
     public Memoria ComponenteMemoria(Memoria memoria, Processador processador, ServicoGrupo servicoGrupo,
                                      List<Janela> janelaGrupo, List<Disco> discoGrupo, Sistema sistema, Integer pid, String IP, String hostName) {
-        Connection conexaoBanco = null;
         String dadosMemoria = String.valueOf(memoria);
         String dadosProcessador = String.valueOf(processador);
         String dadosServico = String.valueOf(servicoGrupo);
@@ -129,67 +98,44 @@ public class Conexao {
         String dadosDisco = String.valueOf(discoGrupo);
         Integer idMaquina = pegarIdMaquina(hostName);
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-             String url = ("jdbc:mysql://44.194.8.163/sisguard");
-             String nomeBanco = "aluno";
-             String senhaBanco = "Aluno123!";
-            conexaoBanco = DriverManager.getConnection(url,nomeBanco,senhaBanco);
-           Integer respostaServer = conexaoBanco.createStatement().executeUpdate("""
-                    insert into registro(cpuPorcentagem, ramPorcentagem, discoPorcentagem, pid, fkMaquinaDarksore,fkMaquina) values("%s","%s","%s",%d,%d,%d);
-                    """.formatted(dadosProcessador,dadosMemoria, dadosDisco,pid, idDark,idMaquina));
-            if(respostaServer == 1 || respostaServer.equals(1)) {
+        try (
+                Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+
+            Integer respostaServerNuvem = conexaoBancoNuvem.createStatement().executeUpdate("""
+                    INSERT INTO registro(cpuPorcentagem, ramPorcentagem, discoPorcentagem, pid, fkMaquinaDarksore, fkMaquina)
+                    VALUES('%s', '%s', '%s', %d, %d, %d)""".formatted(dadosProcessador, dadosMemoria, dadosDisco, pid, idDark, idMaquina));
+            if (
+                    respostaServerNuvem.equals(1)) {
                 System.out.println("Dados Capturados");
-            }else {
+            } else {
                 System.out.println("Erro ao cadastrar os dados");
             }
-        }catch (ClassNotFoundException | SQLException ex){
+        } catch (SQLException ex) {
             System.out.println(ex);
-        }finally {
-           try {
-               if(conexaoBanco != null ){
-                   conexaoBanco.close();
-               }
-           }catch(SQLException ex){
-                System.out.println("Erro ao fechar a conexão: " + ex.getMessage());
-            }
         }
         return memoria;
     }
-    public Integer pegarIdMaquina(String hostname) {
-        Connection conexao = null;
-        Integer idMaquina = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://44.194.8.163/sisguard";
-            String nomeBanco = "aluno";
-            String senhaBanco = "Aluno123!";
-            conexao = DriverManager.getConnection(url, nomeBanco, senhaBanco);
 
-            ResultSet respostaServer = conexao.createStatement().executeQuery(
-                    """
-                            SELECT * from empresa as e join darkstore as d on e.idEmpresa = d.fkEmpresa 
-                            join maquina as m on d.idDarkstore = m.fkDarkstore where m.hostname = "%s"
-                    """.formatted(hostname)
-            );
-            if (respostaServer.next()) {
-                idMaquina = respostaServer.getInt("idMaquina");
-                idDark = respostaServer.getInt("idDarkstore");
-                idEmpresa = respostaServer.getInt("idEmpresa");
+    public Integer pegarIdMaquina(String hostname) {
+        Integer idMaquina = null;
+        try (
+                Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+
+            ResultSet respostaServerNuvem = conexaoNuvem.createStatement().executeQuery("""
+                    SELECT * FROM empresa AS e JOIN dark
+                    SELECT * FROM empresa AS e JOIN darkstore AS d ON e.idEmpresa = d.fkEmpresa
+                    JOIN maquina AS m ON d.idDarkstore = m.fkDarkstore WHERE m.hostname = '%s'""".formatted(hostname));
+
+            if (respostaServerNuvem.next()) {
+                idMaquina = respostaServerNuvem.getInt("idMaquina");
+                idDark = respostaServerNuvem.getInt("idDarkstore");
+                idEmpresa = respostaServerNuvem.getInt("idEmpresa");
             } else {
                 System.out.println("Nenhum registro encontrado para hostname: " + hostname);
             }
 
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Erro ao conectar ou consultar: " + e.getMessage());
-        } finally {
-            try {
-                if (conexao != null) {
-                    conexao.close();
-                }
-            } catch (SQLException se) {
-                System.err.println("Erro ao fechar conexão: " + se.getMessage());
-            }
         }
         return idMaquina;
     }

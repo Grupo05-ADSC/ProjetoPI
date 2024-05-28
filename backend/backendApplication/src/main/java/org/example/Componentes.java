@@ -1,45 +1,33 @@
 package org.example;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.discos.Disco;
-import com.github.britooo.looca.api.group.discos.DiscoGrupo;
-import com.github.britooo.looca.api.group.discos.Volume;
 import com.github.britooo.looca.api.group.janelas.Janela;
-import com.github.britooo.looca.api.group.janelas.JanelaGrupo;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
 import com.github.britooo.looca.api.group.processos.Processo;
 import com.github.britooo.looca.api.group.processos.ProcessoGrupo;
-import com.github.britooo.looca.api.group.rede.RedeInterfaceGroup;
 import com.github.britooo.looca.api.group.rede.RedeParametros;
 import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Componentes {
-    Conexao conexao = new Conexao();
+    ConexaoLocal conexaoLocal = new ConexaoLocal();
+//    Conexao conexaoNuvem = new Conexao();
     Looca looca = new Looca();
 
-    public void Memoria() {
+    public void capturarDados() {
         RedeParametros redeParametros = looca.getRede().getParametros();
         Memoria memoria = looca.getMemoria();
         Processador processador = looca.getProcessador();
         ServicoGrupo servicoGrupo = looca.getGrupoDeServicos();
-        //Janela, tem titulo do da janela
         List<Janela> janelaGrupo = looca.getGrupoDeJanelas().getJanelas();
-        //Disco do computador
         List<Disco> discoGrupo = looca.getGrupoDeDiscos().getDiscos();
-
-        //Sistema
         Sistema sistema = looca.getSistema();
-        //Hostname da maquina
         String hostName = looca.getRede().getParametros().getHostName();
-
-        //Lista de processos
         ProcessoGrupo processoGrupo = looca.getGrupoDeProcessos();
         List<Processo> listaDeProcessos = processoGrupo.getProcessos();
 
@@ -55,6 +43,7 @@ public class Componentes {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
         long maiorMemoriaVirtual = 0;
         int pidMaiorMemoriaVirtual = 0;
 
@@ -66,17 +55,32 @@ public class Componentes {
                 pid = pidMaiorMemoriaVirtual;
             }
         }
-        List dadosInformados = new ArrayList<>();
+
+        List<Object> dadosInformados = new ArrayList<>();
         dadosInformados.add(maiorMemoriaVirtual);
         dadosInformados.add(pidMaiorMemoriaVirtual);
 
-        String respostaConexaoHost = conexao.verificarMaquina(hostName);
-        if(respostaConexaoHost.equals("Maquina não existe")) {
-            conexao.cadastrarMaquina(hostName);
-        }else {
-            conexao.ComponenteMemoria(memoria, processador, servicoGrupo, janelaGrupo, discoGrupo, sistema, pid,IP, hostName);
+//        String respostaConexaoHostNuvem = conexaoNuvem.verificarMaquina(hostName);
+        String respostaConexaoHostLocal = conexaoLocal.verificarMaquina(hostName);
+
+//        if (respostaConexaoHostNuvem.equals("Maquina não existe")) {
+//            conexaoNuvem.cadastrarMaquina(hostName);
+//        }
+        if (respostaConexaoHostLocal.equals("Maquina não existe")) {
+            conexaoLocal.cadastrarMaquina(hostName);
+        } else {
+            while (respostaConexaoHostLocal.equals("Maquina existe")) {
+                try {
+                    conexaoLocal.ComponenteMemoria(memoria, processador, servicoGrupo, janelaGrupo, discoGrupo, sistema, pid, IP, hostName);
+//            conexaoNuvem.ComponenteMemoria(memoria, processador, servicoGrupo, janelaGrupo, discoGrupo, sistema, pid, IP, hostName);
+                    Thread.sleep(5000);  // Pausa de 5 segundos
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
+
     private long extrairMemoriaVirtual(Processo processo) {
         String[] partes = processo.toString().split("Memória virtual utilizada: ");
         if (partes.length > 1) {
@@ -89,36 +93,33 @@ public class Componentes {
         }
         return 0;
     }
-        public String extrairProcessadorEmUso(Processador processador) {
-            String linhasTeste = processador.toString();
 
-            String[] linhas = linhasTeste.split("\\r?\\n");
+    public String extrairProcessadorEmUso(Processador processador) {
+        String linhasTeste = processador.toString();
+        String[] linhas = linhasTeste.split("\\r?\\n");
 
-            for (String linha : linhas) {
-                if (linha.contains("Em Uso:")) {
-                    String[] partes = linha.split(":");
-
-                    if (partes.length > 1) {
-                        String valorEmUso = partes[1].trim();
-                        return valorEmUso;
-                    } else {
-                        System.out.println("Formato incorreto para 'Em Uso:'");
-                    }
+        for (String linha : linhas) {
+            if (linha.contains("Em Uso:")) {
+                String[] partes = linha.split(":");
+                if (partes.length > 1) {
+                    String valorEmUso = partes[1].trim();
+                    return valorEmUso;
+                } else {
+                    System.out.println("Formato incorreto para 'Em Uso:'");
                 }
             }
-
-            System.out.println("'Em Uso:' não encontrado");
-            return "";
         }
+        System.out.println("'Em Uso:' não encontrado");
+        return "";
+    }
+
     public String extrairIdentificadorMaquina(Processador processador) {
         String linhasTeste = processador.toString();
-
         String[] linhas = linhasTeste.split("\\r?\\n");
 
         for (String linha : linhas) {
             if (linha.contains("ID:")) {
                 String[] partes = linha.split(":");
-
                 if (partes.length > 1) {
                     String valorEmUso = partes[1].trim();
                     return valorEmUso;
@@ -127,10 +128,7 @@ public class Componentes {
                 }
             }
         }
-
         System.out.println("'ID:' não encontrado");
         return "";
     }
-    }
-
-
+}
