@@ -1,15 +1,15 @@
 const db = require("./db/db")
 
 const login = (email, senha) => {
-    const instrucao = `SELECT * FROM usuario where email = "${email}" and senha = "${senha}"`
+    const instrucao = `SELECT * FROM empresa where email = "${email}" and senha = "${senha}"`
     return db.executar(instrucao)
 }
 const cadastro = (nome,email,senha,cnpj) => {
     const instrucao = `INSERT INTO empresa(nomeEmpresa,email,senha,cnpj) VALUES('${nome}','${email}','${senha}',${cnpj});`
     return db.executar(instrucao)
 }
-const redefinirSenha = (senha, idUsuario) => {
-    const instrucao = `UPDATE usuario INTO senha = "${senha}" where idUsuario = ${idUsuario}`
+const redefinirSenha = (senha, email) => {
+    const instrucao = `UPDATE empresa SET senha = "${senha}" WHERE email = "${email}";`
     return db.executar(instrucao)
 }
 const informacoes = (idUsuario) => {

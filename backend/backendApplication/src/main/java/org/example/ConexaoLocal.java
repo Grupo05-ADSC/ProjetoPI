@@ -16,11 +16,7 @@ import java.util.List;
 public class ConexaoLocal {
     public Integer idDark;
     public Integer idEmpresa;
-
-    private static final String urlNuvem = "jdbc:mysql://44.194.8.163/sisguard";
-    private static final String userNuvem = "aluno";
-    private static final String senhaNuvem = "Aluno123!";
-
+    
     private static final String localhost = "jdbc:mysql://localhost/sisguard";
     private static final String userL = "root";
     private static final String passwordL = "sptech";

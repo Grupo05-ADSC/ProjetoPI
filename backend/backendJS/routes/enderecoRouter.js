@@ -7,6 +7,4 @@ router.post("/endereco/:idEmpresa", (req, res) => {
     enderecoController.cadastrar(req, res)
 })
 
-module.exports = {
-    enderecoController
-}
+module.exports = router

@@ -1,17 +1,10 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-<<<<<<< HEAD
-  host: 'localhost',
-  user: 'root',
-  database: 'projeto_pi',
-  password: '@Dedomindinho22',
-=======
-  host: '100.25.147.27',
+  host: '44.194.8.163',
   user: 'aluno',
   database: 'sisguard',
   password: 'Aluno123!',
->>>>>>> 431527293e2ce2bea7d9a43a76ae303dc72cc7e9
 });
 
 function executar(instrucao) {
