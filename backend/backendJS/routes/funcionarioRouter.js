@@ -15,4 +15,7 @@ router.delete("/deletarFuncionario/:idEmpresa/:idFuncionario", (req, res) => {
 router.put("/atualizarFuncionario/:idEmpresa/:idFuncionario", (req, res) => {
     funcionarioController.editar(req,res)
 })
+router.get("/funcionariosTotais/:idEmpresa", (req, res) => {
+    funcionarioController.soma(req,res)
+})
 module.exports = router
