@@ -24,14 +24,16 @@ const cadastro = (req, res) => {
    const nome = req.body.nome
    const email = req.body.email
    const senha = req.body.senha
+   const cargo = req.body.cargo
 
    if(nome === undefined || nome === "" ||
    email === undefined || email === "" ||
    senha === undefined || senha === "" ||
+   senha === undefined || cargo === "" ||
    idEmpresa === undefined || idEmpresa === "") {
     return res.status(400).json({error:"variaveis invalidas"})
    }else {
-        funcionarioModal.cadastro(nome, email, senha, idEmpresa)
+        funcionarioModal.cadastro(nome, email, senha, cargo,idEmpresa)
         .then(resposta => {
             if(resposta) {
                 return res.status(200).json({messege: "funcionario cadastrado"})
@@ -80,7 +82,26 @@ const editar = (req, res) => {
              if(resposta) {
                  return res.status(200).json({messege: "funcionario alterado"})
              }else {
-                 return res.status(500).json({error:"Erro ao alterado o funcionario"})
+                 return res.status(500).json({error:"Erro ao alterar o funcionario"})
+             }
+         }).catch(erro => {
+             console.log(erro)
+         })
+     }
+ }
+
+ const soma = (req, res) => {
+    const idEmpresa = req.params.idEmpresa
+ 
+    if(idEmpresa === undefined || idEmpresa === "") {
+     return res.status(400).json({error:"variaveis invalidas"})
+    }else {
+         funcionarioModal.soma(idEmpresa)
+         .then(resposta => {
+             if(resposta) {
+                 return res.status(200).json({resposta})
+             }else {
+                 return res.status(500).json({error:"Erro ao alterar o funcionario"})
              }
          }).catch(erro => {
              console.log(erro)
@@ -91,5 +112,6 @@ module.exports = {
     cadastro,
     mostrar,
     deletar,
-    editar
+    editar,
+    soma
 }

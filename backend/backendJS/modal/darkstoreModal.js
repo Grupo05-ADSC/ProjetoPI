@@ -8,12 +8,22 @@ const mostrar = (idEmpresa) => {
     const instrucao = `SELECT * FROM darkstore where fkEmpresa = ${idEmpresa}`
     return db.executar(instrucao)
 }
-const deletar = (idEmpresa) => {
-    const instrucao = `DELETE * FROM darkstore where fkEmpresa = ${idEmpresa}`
+const mostrar2 = (idEmpresa,nome) => {
+    const instrucao = `SELECT idDarkstore FROM darkstore where fkEmpresa = ${idEmpresa} and nome = "${nome}"`
+    return db.executar(instrucao)
+}
+const deletar = (idEmpresa, idDark) => {
+    const instrucao = `DELETE FROM darkstore where fkEmpresa = ${idEmpresa} and idDarkstore = ${idDark}`
+    return db.executar(instrucao)
+}
+const editar = (idDark, idEmpresa, nome) => {
+    const instrucao = `UPDATE darkstore SET nome = "${nome}" WHERE idDarkstore = ${idDark} and fkEmpresa = ${idEmpresa};`
     return db.executar(instrucao)
 }
 module.exports = {
     cadastro,
     mostrar,
-    deletar
+    deletar,
+    mostrar2,
+    editar
 }
