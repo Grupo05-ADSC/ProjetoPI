@@ -1,11 +1,12 @@
-package org.example;
+package org.example.telaJFRAME;
+
+import org.example.login.Usuario;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 public class Tela extends JFrame {
-    public Tela() {
+    public Tela() throws SQLException {
         super("Minha Tela");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -14,7 +15,7 @@ public class Tela extends JFrame {
                 String senha = JOptionPane.showInputDialog("Qual é a senha?");
 
                 Usuario usuario = new Usuario();
-                String respostaBanco = usuario.validarUser(email, senha);
+                String respostaBanco = String.valueOf(usuario.validarUser(email, senha));
 
                 JOptionPane.showMessageDialog(null, respostaBanco);
             }
