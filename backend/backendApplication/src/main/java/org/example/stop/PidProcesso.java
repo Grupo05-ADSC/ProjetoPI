@@ -1,6 +1,5 @@
 package org.example.stop;
 
-import org.example.connection.ConnectionLocal;
 import org.example.connection.ConnectionNuvem;
 
 import java.sql.Connection;
@@ -9,42 +8,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PidProcesso {
-    public static int extrairpid(int idMaquina) throws SQLException {
-        String sql = "SELECT dado FROM processos WHERE desativar = TRUE AND Maquina_idMaquina = ?";
+    public static void extrairPid(int idMaquina) throws SQLException {
+        String sql = "SELECT * FROM processos WHERE desativar = TRUE AND Maquina_idMaquina = ?";
 
         try (Connection conn = ConnectionNuvem.getConexaoNuvem();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, idMaquina);
             ResultSet resposta = stmt.executeQuery();
 
-            while (resposta.next()) {
-                String dados = resposta.getString("dado");
-                String[] processos = dados.substring(1, dados.length() - 1).split(", ");
+            if (resposta.next()) {
+                 String pid = resposta.getString("pid");
 
-                for (String processo : processos) {
-                    if (processo.contains("PID: ")) {
-                        String pidStr = processo.split("PID: ")[1].split(",")[0].trim();
-                        return Integer.parseInt(pidStr);
-                    }
-                }
+                 StopProcesso.desativarProcesso(Integer.parseInt(pid),idMaquina);
+            }else {
+
+                System.out.println("Nao foi achar esse processo");
             }
-        }try (Connection conn = ConnectionLocal.getConexaoLocal();
-              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idMaquina);
-            ResultSet resposta = stmt.executeQuery();
-
-            while (resposta.next()) {
-                String dados = resposta.getString("dado");
-                String[] processos = dados.substring(1, dados.length() - 1).split(", ");
-
-                for (String processo : processos) {
-                    if (processo.contains("PID: ")) {
-                        String pidStr = processo.split("PID: ")[1].split(",")[0].trim();
-                        return Integer.parseInt(pidStr);
-                    }
-                }
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return -1;
     }
 }

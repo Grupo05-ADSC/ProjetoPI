@@ -2,6 +2,8 @@ package org.example.componentes;
 
 import org.example.connection.ConnectionNuvem;
 import org.example.registros.RegistroTotal;
+import org.example.relatorio.MainRelatorio;
+import org.example.relatorio.Relatorio;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,6 +44,8 @@ public class Maquina {
             System.err.println("Não foi possível extrair o identificador da máquina.");
             return;
         }
+
+        MainRelatorio.main(new String[]{identificadorMaquina});
 
         String sqlSelect = "SELECT * FROM maquina WHERE numSerie = ?";
         String sqlInsert = "INSERT INTO maquina (numSerie, fkDarkStore,Metrica_MetricaIdeal) VALUES (?, 1,1)";

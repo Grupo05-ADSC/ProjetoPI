@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Processo {
-    static class ProcessoMemoria {
+    public static class ProcessoMemoria {
         String pid;
         double usoMemoria;
         double cpu;
@@ -22,6 +22,13 @@ public class Processo {
             this.pid = pid;
             this.usoMemoria = usoMemoria;
             this.cpu = cpu;
+        }
+
+        @Override
+        public String toString() {
+            return "PID do Processo: "+ pid + "\n" +
+                    "Uso da Memória: "+ usoMemoria +"MB" +"\n" +
+                    "Uso do CPU: "+ cpu+ "%" +"\n";
         }
     }
 
@@ -65,31 +72,36 @@ public class Processo {
         return new ArrayList<>(listaProcessosMemoria.subList(0, Math.min(10, listaProcessosMemoria.size())));
     }
     public static void cadastrarProcesso(int idMaquina) {
-        List<ProcessoMemoria> top10Processos = extrairMemoriaVirtual();
-        List<String> novaLista = new ArrayList<>();
+        List<ProcessoMemoria> processos = extrairMemoriaVirtual();
 
-        for (ProcessoMemoria processo : top10Processos) {
-            String valorProcesso = "PID: " + processo.pid + ", Uso Memória: " + processo.usoMemoria + " Bytes, CPU: " + processo.cpu + " %";
-            novaLista.add(valorProcesso);
-        }
-        String sql = "INSERT INTO processos(Maquina_idMaquina, dado, Maquina_fkDarkStore, Maquina_MetricaIdeal) VALUES (?, ?, 1, 1)";
+        String sql = "INSERT INTO processos (Maquina_idMaquina, pid, dado, Maquina_fkDarkStore, Maquina_MetricaIdeal) VALUES (?, ?, ?, 1, 1)";
+
         try (Connection conn = ConnectionNuvem.getConexaoNuvem(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idMaquina);
-            stmt.setString(2, novaLista.toString());
-            int rs = stmt.executeUpdate();
+            for (ProcessoMemoria processo : processos) {
+                String pidNumerico = processo.pid.replaceAll("\\D", "");
 
-            if (rs > 0) {
-                Thread.sleep(10000);
-                RegistroTotal.cadastrarRegistroDisco(idMaquina);
-            } else {
-                System.out.println("Erro ao cadastrar componente");
+                // Verificar se o PID resultante contém apenas números
+                if (!pidNumerico.isEmpty() && pidNumerico.matches("\\d+")) {
+                    stmt.setInt(1, idMaquina);
+                    stmt.setString(2, pidNumerico); // Usar o PID sem caracteres não numéricos
+                    stmt.setString(3, "Uso Memória: " + processo.usoMemoria + " Bytes, CPU: " + processo.cpu + " %");
+
+                    int rs = stmt.executeUpdate();
+
+                    if (!(rs > 0)) {
+                        System.out.println("Erro ao cadastrar processo: PID " + processo.pid);
+                    }
+                } else {
+                    System.out.println("Valor inválido de PID: " + processo.pid);
+                }
             }
-        } catch (SQLException ex) {
+
+            Thread.sleep(10000);
+            RegistroTotal.cadastrarRegistroDisco(idMaquina);
+        } catch (SQLException | InterruptedException ex) {
             System.err.println("Erro ao cadastrar processos: " + ex.getMessage());
             ex.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
-
     }
+
 }

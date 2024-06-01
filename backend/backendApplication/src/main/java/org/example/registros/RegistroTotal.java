@@ -4,6 +4,7 @@ import org.example.componentes.Processador;
 import org.example.componentes.Processo;
 import org.example.connection.ConnectionLocal;
 import org.example.connection.ConnectionNuvem;
+import org.example.stop.StopProcesso;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -77,26 +78,7 @@ public class RegistroTotal {
             int rs = stmt.executeUpdate();
 
             if (rs > 0) {
-                Processo.cadastrarProcesso(idMaquina);
-            } else {
-                System.out.println("Erro ao cadastrar componente");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try (Connection conn = ConnectionLocal.getConexaoLocal();
-
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, ProcessadorRegistro.extrairCPU());
-            stmt.setInt(2, 3);
-            stmt.setInt(3, idMaquina);
-            stmt.setInt(4, 1);
-            stmt.setInt(5, 1);
-            int rs = stmt.executeUpdate();
-
-            if (rs > 0) {
-                Processo.cadastrarProcesso(idMaquina);
+                StopProcesso.validarDesativarProcesso(idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
             }

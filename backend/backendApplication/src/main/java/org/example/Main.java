@@ -1,15 +1,7 @@
 package org.example;
-import com.github.britooo.looca.api.core.Looca;
-import org.example.componentes.Componentes;
-import org.example.componentes.Memoria;
-import org.example.componentes.Processador;
-import org.example.componentes.Processo;
-import org.example.login.Usuario;
-import org.example.registros.DiscoRegistro;
-import org.example.registros.ProcessadorRegistro;
-import org.example.registros.RamRegistro;
-import org.example.stop.PidProcesso;
 
+import com.github.britooo.looca.api.core.Looca;
+import org.example.login.Usuario;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -18,11 +10,6 @@ public class Main {
         Usuario usuario = new Usuario();
         Looca looca = new Looca();
 
-     /* SwingUtilities.invokeLater(() -> {
-          Tela telaLogin = new Tela();
-          telaLogin.setVisible(true);
-           });
-      */
         Scanner perguntaUser = new Scanner(System.in);
         System.out.println("Qual seria o e-mail?");
         String email = perguntaUser.nextLine();
@@ -31,6 +18,5 @@ public class Main {
 
 
         String respostaBanco = String.valueOf(usuario.validarUser(email, senha));
-;
     }
 }
