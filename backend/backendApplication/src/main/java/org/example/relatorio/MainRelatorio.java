@@ -1,21 +1,34 @@
 package org.example.relatorio;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MainRelatorio {
     public static void main(String[] args)  {
-
         Scanner perguntaUser = new Scanner(System.in);
 
-        System.out.println("Digite 1 para gerar relatorio ou digite 0 para continuar:");
+        System.out.println("Digite 1 para gerar relatório ou digite 0 para continuar:");
 
-        int input = perguntaUser.nextInt();
+        int input;
+        try {
+            if (perguntaUser.hasNextInt()) {
+                input = perguntaUser.nextInt();
+            } else {
+                System.out.println("Entrada inválida. Por favor, insira um número inteiro.");
+                perguntaUser.close();
+                return;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida. Por favor, insira um número inteiro.");
+            perguntaUser.close();
+            return;
+        }
 
         perguntaUser.nextLine();
+
         if (input == 1) {
             String filePath = Relatorio.gerarRelatorio();
             if (filePath != null) {
@@ -34,6 +47,7 @@ public class MainRelatorio {
                         destinationDir.mkdirs();
                     } else {
                         System.out.println("Operação cancelada. Programa encerrado.");
+                        perguntaUser.close();
                         return;
                     }
                 }

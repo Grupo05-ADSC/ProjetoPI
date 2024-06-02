@@ -37,7 +37,7 @@ public class Maquina {
         return "";
     }
 
-    public static void validarMaquina() {
+    public static void validarMaquina(Connection conn) {
 
         String identificadorMaquina = extrairIdentificadorMaquina();
         if (identificadorMaquina.isEmpty()) {
@@ -50,7 +50,7 @@ public class Maquina {
         String sqlSelect = "SELECT * FROM maquina WHERE numSerie = ?";
         String sqlInsert = "INSERT INTO maquina (numSerie, fkDarkStore,Metrica_MetricaIdeal) VALUES (?, 1,1)";
 
-        try (Connection conn = ConnectionNuvem.getConexaoNuvem()) {
+        try {
             try (PreparedStatement stmtSelect = conn.prepareStatement(sqlSelect)) {
                 stmtSelect.setString(1, identificadorMaquina);
                 ResultSet resposta = stmtSelect.executeQuery();
@@ -58,21 +58,20 @@ public class Maquina {
                 if (resposta.next()) {
                     int idMaquina = Integer.parseInt(resposta.getString("idMaquina"));
                     System.out.println("Iniciando registro...");
-                    if(Memoria.verificarMemoriaRAM()) {
-                            Processo.cadastrarProcesso(idMaquina);
-
-                        }else {
+                    if (Memoria.verificarMemoriaRAM()) {
+                        Processo.cadastrarProcesso(idMaquina);
+                    } else {
                         Disco.cadastrarDisco(idMaquina);
                     }
                 } else {
-                    // Cadastra a nova máquina
                     try (PreparedStatement stmtInsert = conn.prepareStatement(sqlInsert)) {
                         stmtInsert.setString(1, identificadorMaquina);
                         int rs = stmtInsert.executeUpdate();
 
                         if (rs == 1) {
                             System.out.println("Máquina cadastrada com sucesso.");
-                            validarMaquina();
+                            // Chamada recursiva passando a conexão
+                            validarMaquina(conn);
                         } else {
                             System.out.println("Não foi possível cadastrar a máquina.");
                         }

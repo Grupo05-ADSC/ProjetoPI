@@ -17,11 +17,11 @@ import java.util.Date;
 
 public class Conexao {
     private static final String URL_LOCAL = "jdbc:mysql://localhost/sisguard";
-    private static final String URL_NUVEM = "jdbc:mysql://44.194.8.163/sisguard";
+    private static final String URL_NUVEM = "jdbc:mysql://44.194.8.163/banco1";
     private static final String USERNAME_LOCAL = "root";
     private static final String SENHA_LOCAL = "root123";
-    private static final String SENHA_NUVEM = "Aluno123!";
-    private static final String USERNAME_NUVEM = "aluno";
+    private static final String SENHA_NUVEM = "urubu100";
+    private static final String USERNAME_NUVEM = "root";
 
     private static Connection conexaoLocal = null;
     private static Connection conexaoNuvem = null;
@@ -81,35 +81,28 @@ public class Conexao {
         ResultSet loginResult = null;
 
         try {
-            try {
-                ConnectionNuvem connNuvem = new ConnectionNuvem();
-                loginResult = connNuvem.loginNuvem(email, senha);
+            ConnectionNuvem connNuvem = new ConnectionNuvem();
+            loginResult = connNuvem.loginNuvem(email, senha);
 
-                if (loginResult.next()) {
-                    System.out.println("Seja bem-vindo");
-                } else {
-                    System.out.println("Usuário não encontrado");
-                }
-
+            if (loginResult.next()) {
+                System.out.println("Seja bem-vindo");
                 conn = getConexaoNuvem();
                 System.out.println("Login na nuvem bem-sucedido!");
-
-                Maquina.validarMaquina();
-            } catch (Exception e) {
+            } else {
                 ConnectionLocal connLocal = new ConnectionLocal();
                 loginResult = connLocal.loginLocal(email, senha);
 
                 if (loginResult.next()) {
                     System.out.println("Seja bem-vindo");
-                    Maquina.validarMaquina();
+                    conn = getConexaoLocal();
+                    System.out.println("Login local bem-sucedido!");
                 } else {
                     System.out.println("Usuário não encontrado");
                 }
+            }
 
-                conn = getConexaoLocal();
-                System.out.println("Login local bem-sucedido!");
-
-
+            if (conn != null) {
+                Maquina.validarMaquina(conn);
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
