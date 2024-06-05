@@ -13,10 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ConexaoLocal {
+public class ConexaoLOCAL {
     public Integer idDark;
     public Integer idEmpresa;
-    
+
     private static final String localhost = "jdbc:mysql://localhost/sisguard";
     private static final String userL = "root";
     private static final String passwordL = "sptech";
@@ -160,4 +160,11 @@ public class ConexaoLocal {
         return idMaquina;
     }
 
+    public Integer getIdDark() {
+        return idDark;
+    }
+
+    public Integer getIdEmpresa() {
+        return idEmpresa;
+    }
 }

@@ -15,7 +15,7 @@ import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
 
 public class Componentes {
-    ConexaoLocal conexaoLocal = new ConexaoLocal();
+    ConexaoLOCAL conexaoLocal = new ConexaoLOCAL();
 //    Conexao conexaoNuvem = new Conexao();
     Looca looca = new Looca();
 

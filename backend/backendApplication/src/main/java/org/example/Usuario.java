@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Usuario {
-    ConexaoLocal conexaoLocal = new ConexaoLocal();
-    Conexao conexao = new Conexao();
+    ConexaoLOCAL conexaoLocal = new ConexaoLOCAL();
+    ConexaoSQLSERVER conexao = new ConexaoSQLSERVER();
 
      String validarUser(String email, String senha) {
        if(email == "" || senha == "") {

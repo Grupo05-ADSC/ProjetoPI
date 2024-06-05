@@ -1,34 +1,47 @@
 package org.example;
 
+import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.discos.Disco;
 import com.github.britooo.looca.api.group.janelas.Janela;
 import com.github.britooo.looca.api.group.memoria.Memoria;
 import com.github.britooo.looca.api.group.processador.Processador;
 import com.github.britooo.looca.api.group.servicos.ServicoGrupo;
 import com.github.britooo.looca.api.group.sistema.Sistema;
+import org.example.connection.ConnectionSQLSERVER;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
-public class Conexao {
-    public Integer idDark;
-    public Integer idEmpresa;
+public class ConexaoSQLSERVER {
+    Looca looca = new Looca();
 
-    private static final String urlNuvem = "jdbc:mysql://44.194.8.163/sisguard";
-    private static final String userNuvem = "aluno";
-    private static final String senhaNuvem = "Aluno123!";
+    private Integer idDark;
+    private Integer idEmpresa;
+    private Integer idMaquina = null;
+    private String canal = null;
+    private String nomeSlack = null;
+
+
+    static ConnectionSQLSERVER connectionSQLSERVER = new ConnectionSQLSERVER();
+
+
+    private static String urlNuvem = connectionSQLSERVER.getURL_SQLSERVER();
+    private static String userNuvem = connectionSQLSERVER.getUSERNAME_SQLSERVER();
+    private static String senhaNuvem = connectionSQLSERVER.getPASSWORD_SQLSERVER();
+//    https://hooks.slack.com/services/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
+    private String WEBHOOK_URL = "colocar o link a cima aqui";
+    private String USERNAME = looca.getRede().getParametros().getHostName();
+    private String CHANNEL = obterCanalDoBancoDeDados();
+    private String MESSAGE_TEXT = "";
+
 
     public static void logarUser(String email, String senha) {
         if (email.isEmpty() || senha.isEmpty()) {
             System.out.println("Login inválido");
             return;
         }
-        try (Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)){
 
-//             Consulta e validação na nuvem
+        try (Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem,userNuvem,senhaNuvem)) {
             ResultSet respostaServerNuvem = conexaoBancoNuvem.createStatement().executeQuery(
                     "SELECT * FROM empresa WHERE email = '%s' AND senha = '%s'".formatted(email, senha));
             if (respostaServerNuvem.next()) {
@@ -46,16 +59,12 @@ public class Conexao {
         if (hostname.isEmpty()) {
             return "host vazio";
         } else {
-            try
-                    (Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+            try (Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
 
                 ResultSet respostaMaquinaNuvem = conexaoNuvem.createStatement().executeQuery(
                         "SELECT * FROM maquina WHERE hostname = '%s'".formatted(hostname));
 
-
-                if (
-                        respostaMaquinaNuvem.next()
-                ) {
+                if (respostaMaquinaNuvem.next()) {
                     return "Maquina existe";
                 } else {
                     return "Maquina não existe";
@@ -69,14 +78,12 @@ public class Conexao {
 
 
     public String cadastrarMaquina(String hostname) {
-        try (
-                Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+        try (Connection conexaoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
 
             Integer respostaBancoNuvem = conexaoNuvem.createStatement().executeUpdate(
                     "INSERT INTO maquina VALUES(NULL, '%s', 1)".formatted(hostname));
 
-
-            if (respostaBancoNuvem.equals(1)){
+            if (respostaBancoNuvem.equals(1)) {
                 Componentes componentes = new Componentes();
                 componentes.capturarDados();
             } else {
@@ -98,14 +105,12 @@ public class Conexao {
         String dadosDisco = String.valueOf(discoGrupo);
         Integer idMaquina = pegarIdMaquina(hostName);
 
-        try (
-                Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
+        try (Connection conexaoBancoNuvem = DriverManager.getConnection(urlNuvem, userNuvem, senhaNuvem)) {
 
             Integer respostaServerNuvem = conexaoBancoNuvem.createStatement().executeUpdate("""
                     INSERT INTO registro(cpuPorcentagem, ramPorcentagem, discoPorcentagem, pid, fkMaquinaDarksore, fkMaquina)
                     VALUES('%s', '%s', '%s', %d, %d, %d)""".formatted(dadosProcessador, dadosMemoria, dadosDisco, pid, idDark, idMaquina));
-            if (
-                    respostaServerNuvem.equals(1)) {
+            if (respostaServerNuvem.equals(1)) {
                 System.out.println("Dados Capturados");
             } else {
                 System.out.println("Erro ao cadastrar os dados");
@@ -139,5 +144,79 @@ public class Conexao {
         }
         return idMaquina;
     }
+    public String obterCanalDoBancoDeDados() {
+        String query = "SELECT canal FROM slack";
+        try (Connection conn = DriverManager.getConnection(urlNuvem,userNuvem,senhaNuvem);
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
 
+            if (rs.next()) {
+                canal = rs.getString("canal");
+                return canal;
+            } else {
+                System.err.println("Nenhum canal encontrado no banco de dados.");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    public Looca getLooca() {
+        return looca;
+    }
+
+    public Integer getIdDark() {
+        return idDark;
+    }
+
+    public Integer getIdEmpresa() {
+        return idEmpresa;
+    }
+
+    public Integer getIdMaquina() {
+        return idMaquina;
+    }
+
+    public String getCanal() {
+        return canal;
+    }
+
+    public String getNomeSlack() {
+        return nomeSlack;
+    }
+
+    public static ConnectionSQLSERVER getConnectionSQLSERVER() {
+        return connectionSQLSERVER;
+    }
+
+    public String getWEBHOOK_URL() {
+        return WEBHOOK_URL;
+    }
+
+    public String getUSERNAME() {
+        return USERNAME;
+    }
+
+    public String getCHANNEL() {
+        return CHANNEL;
+    }
+
+    public String getMESSAGE_TEXT() {
+        return MESSAGE_TEXT;
+    }
+
+    public String getUrlNuvem() {
+        return urlNuvem;
+    }
+
+    public String getUserNuvem() {
+        return userNuvem;
+    }
+
+    public String getSenhaNuvem() {
+        return senhaNuvem;
+    }
 }
