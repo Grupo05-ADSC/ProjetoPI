@@ -1,9 +1,8 @@
 package org.example.componentes;
 
-import org.example.connection.ConnectionNuvem;
+import org.example.connection.ConnectionMYSQL;
+import org.example.connection.ConnectionSQLSERVER;
 import org.example.registros.RegistroTotal;
-import org.example.stop.PidProcesso;
-import org.example.stop.StopProcesso;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,9 +25,9 @@ public class Processo {
 
         @Override
         public String toString() {
-            return "PID do Processo: "+ pid + "\n" +
-                    "Uso da Memória: "+ usoMemoria +"MB" +"\n" +
-                    "Uso do CPU: "+ cpu+ "%" +"\n";
+            return "PID do Processo: " + pid + "\n" +
+                    "Uso da Memória: " + usoMemoria + "MB" + "\n" +
+                    "Uso do CPU: " + cpu + "%" + "\n";
         }
     }
 
@@ -71,24 +70,31 @@ public class Processo {
         listaProcessosMemoria.sort(Comparator.comparingDouble((ProcessoMemoria pm) -> pm.cpu).reversed());
         return new ArrayList<>(listaProcessosMemoria.subList(0, Math.min(10, listaProcessosMemoria.size())));
     }
-    public static void cadastrarProcesso(int idMaquina) {
+
+    public static void cadastrarProcesso(Connection connMySQL, Connection connSQLServer, int idMaquina) {
         List<ProcessoMemoria> processos = extrairMemoriaVirtual();
 
-        String sql = "INSERT INTO processos (Maquina_idMaquina, pid, dado, Maquina_fkDarkStore, Maquina_MetricaIdeal) VALUES (?, ?, ?, 1, 1)";
+        String sql = "INSERT INTO processos (fkMaquina, pid, dado) VALUES (?, ?, ?)";
 
-        try (Connection conn = ConnectionNuvem.getConexaoNuvem(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
+             PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
+
             for (ProcessoMemoria processo : processos) {
                 String pidNumerico = processo.pid.replaceAll("\\D", "");
 
-                // Verificar se o PID resultante contém apenas números
                 if (!pidNumerico.isEmpty() && pidNumerico.matches("\\d+")) {
-                    stmt.setInt(1, idMaquina);
-                    stmt.setString(2, pidNumerico); // Usar o PID sem caracteres não numéricos
-                    stmt.setString(3, "Uso Memória: " + processo.usoMemoria + " Bytes, CPU: " + processo.cpu + " %");
+                    stmtMySQL.setInt(1, idMaquina);
+                    stmtMySQL.setString(2, pidNumerico);
+                    stmtMySQL.setString(3, "Uso Memória: " + processo.usoMemoria + " Bytes, CPU: " + processo.cpu + " %");
 
-                    int rs = stmt.executeUpdate();
+                    stmtSQLServer.setInt(1, idMaquina);
+                    stmtSQLServer.setString(2, pidNumerico);
+                    stmtSQLServer.setString(3, "Uso Memória: " + processo.usoMemoria + " Bytes, CPU: " + processo.cpu + " %");
 
-                    if (!(rs > 0)) {
+                    int rsMySQL = stmtMySQL.executeUpdate();
+                    int rsSQLServer = stmtSQLServer.executeUpdate();
+
+                    if (rsMySQL <= 0 || rsSQLServer <= 0) {
                         System.out.println("Erro ao cadastrar processo: PID " + processo.pid);
                     }
                 } else {
@@ -97,11 +103,10 @@ public class Processo {
             }
 
             Thread.sleep(10000);
-            RegistroTotal.cadastrarRegistroDisco(idMaquina);
+            RegistroTotal.cadastrarRegistroDisco(connMySQL, connSQLServer, idMaquina);
         } catch (SQLException | InterruptedException ex) {
             System.err.println("Erro ao cadastrar processos: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
-
 }

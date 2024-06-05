@@ -6,50 +6,50 @@ Top 10 Processos que estão consumindo mais:
 PID do Processo: 0
 Uso
 Uso da Memória: 0.0MB
-Uso do CPU: 80.8%
+Uso do CPU: 98.5%
 
-PID do Processo: 18984
+PID do Processo: 13092
+Uso
+Uso da Memória: 1.2MB
+Uso do CPU: 92.3%
+
+PID do Processo: 24300
+Uso
+Uso da Memória: 23.5MB
+Uso do CPU: 78.2%
+
+PID do Processo: 28044
+Uso
+Uso da Memória: 5.1MB
+Uso do CPU: 36.6%
+
+PID do Processo: 25100
 Uso
 Uso da Memória: 1.1MB
-Uso do CPU: 54.3%
+Uso do CPU: 36.4%
 
-PID do Processo: 9508
+PID do Processo: 20416
 Uso
-Uso da Memória: 22.1MB
-Uso do CPU: 42.0%
+Uso da Memória: 3.5MB
+Uso do CPU: 7.2%
 
-PID do Processo: 12752
+PID do Processo: 22464
 Uso
-Uso da Memória: 1.1MB
-Uso do CPU: 27.9%
+Uso da Memória: 2.1MB
+Uso do CPU: 5.1%
 
-PID do Processo: 18212
-Uso
-Uso da Memória: 0.9MB
-Uso do CPU: 24.1%
-
-PID do Processo: 12876
-Uso
-Uso da Memória: 0.1MB
-Uso do CPU: 11.3%
-
-PID do Processo: 7588
-Uso
-Uso da Memória: 2.6MB
-Uso do CPU: 2.5%
-
-PID do Processo: 11324
+PID do Processo: 25824
 Uso
 Uso da Memória: 0.3MB
-Uso do CPU: 2.3%
+Uso do CPU: 3.3%
 
-PID do Processo: 5724
+PID do Processo: 22504
 Uso
-Uso da Memória: 0.0MB
-Uso do CPU: 1.2%
+Uso da Memória: 1.2MB
+Uso do CPU: 1.8%
 
-PID do Processo: 4
+PID do Processo: 16192
 Uso
-Uso da Memória: 0.0MB
-Uso do CPU: 0.7%
+Uso da Memória: 0.5MB
+Uso do CPU: 1.5%
 

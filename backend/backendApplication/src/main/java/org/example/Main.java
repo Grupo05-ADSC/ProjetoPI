@@ -10,6 +10,9 @@ public class Main {
         Usuario usuario = new Usuario();
         Looca looca = new Looca();
 
+        System.setProperty("javax.net.ssl.trustStore", "NONE");
+        System.setProperty("javax.net.ssl.trustStorePassword", "");
+
         Scanner perguntaUser = new Scanner(System.in);
         System.out.println("Qual seria o e-mail?");
         String email = perguntaUser.nextLine();

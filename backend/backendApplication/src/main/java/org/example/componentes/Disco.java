@@ -1,34 +1,31 @@
-
 package org.example.componentes;
-
-import org.example.connection.ConnectionNuvem;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Disco {
-    public static void cadastrarDisco(Integer idMaquina) {
-        String sql = "INSERT INTO componente (nome, Maquina_idMaquina, maquina_fkDarkstore,Maquina_MetricaIdeal,Metrica_MetricaIdeal) " +
-                "VALUES(?,?,?,?,?)";
-        try (Connection conn = ConnectionNuvem.getConexaoNuvem();
+    public static void cadastrarDisco(Connection connMySQL, Connection connSQLServer, Integer idMaquina) {
+        String sql = "INSERT INTO componente (nome, Maquina_idMaquina) VALUES (?, ?)";
 
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, "Disco");
-            stmt.setInt(2, idMaquina);
-            stmt.setInt(3, 1);
-            stmt.setInt(4, 1);
-            stmt.setInt(5, 1);
-            int rs = stmt.executeUpdate();
+        try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
+             PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
-            if (rs > 0) {
-                Memoria.cadastrarMemoriaRam(idMaquina);
+            stmtMySQL.setString(1, "Disco");
+            stmtMySQL.setInt(2, idMaquina);
+            stmtSQLServer.setString(1, "Disco");
+            stmtSQLServer.setInt(2, idMaquina);
+
+            int rsMySQL = stmtMySQL.executeUpdate();
+            int rsSQLServer = stmtSQLServer.executeUpdate();
+
+            if (rsMySQL > 0 && rsSQLServer > 0) {
+                Memoria.cadastrarMemoriaRam(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 }

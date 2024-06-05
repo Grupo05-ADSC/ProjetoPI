@@ -1,8 +1,6 @@
-
 package org.example.componentes;
 
-import org.example.connection.ConnectionLocal;
-import org.example.connection.ConnectionNuvem;
+import org.example.connection.Conexao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,39 +17,15 @@ public class Memoria {
         return Double.parseDouble(ramString);
     }
 
-    public static void cadastrarMemoriaRam(Integer idMaquina) {
-             String sql = "INSERT INTO componente (nome, Maquina_idMaquina, maquina_fkDarkstore,Maquina_MetricaIdeal,Metrica_MetricaIdeal) " +
-                     "VALUES(?,?,?,?,?)";
-        try (Connection conn = ConnectionNuvem.getConexaoNuvem();
+    public static void cadastrarMemoriaRam(Connection connMySQL, Connection connSQLServer, Integer idMaquina) {
+        String sql = "INSERT INTO componente (nome, Maquina_idMaquina) VALUES (?, ?)";
 
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, "Memoria RAM");
-            stmt.setInt(2, idMaquina);
-            stmt.setInt(3, 1);
-            stmt.setInt(4, 1);
-            stmt.setInt(5, 1);
-            int rs = stmt.executeUpdate();
+        try {
+            int respostaMySQL = Conexao.executeUpdate(connMySQL, sql, "Memoria Ram", idMaquina);
+            int respostaSQLServer = Conexao.executeUpdate(connSQLServer, sql, "Memoria Ram", idMaquina);
 
-            if (rs > 0) {
-                Processador.cadastrarProcessador(idMaquina);
-            } else {
-                System.out.println("Erro ao cadastrar componente");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try (Connection conn = ConnectionLocal.getConexaoLocal();
-
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, "Memoria RAM");
-            stmt.setInt(2, idMaquina);
-            stmt.setInt(3, 1);
-            stmt.setInt(4, 1);
-            stmt.setInt(5, 1);
-            int rs = stmt.executeUpdate();
-
-            if (rs > 0) {
-                Processador.cadastrarProcessador(idMaquina);
+            if (respostaMySQL > 0 && respostaSQLServer > 0) {
+                Processador.cadastrarProcessador(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
             }
@@ -60,18 +34,22 @@ public class Memoria {
         }
     }
 
-    public static boolean verificarMemoriaRAM() {
-        String sql = "SELECT * FROM componente WHERE Maquina_idMaquina = 1";
+    public static boolean verificarMemoriaRAM(Connection connMySQL, Connection connSQLServer, int idMaquina) {
+        String sql = "SELECT * FROM componente WHERE Maquina_idMaquina = ?";
         boolean verificar = false;
 
-        try {
-            Connection conn = ConnectionNuvem.getConexaoNuvem();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery();
-            verificar = rs.next();
+        try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
+             PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
+
+            stmtMySQL.setInt(1, idMaquina); // Substitua 1 pelo valor que você deseja verificar
+            stmtSQLServer.setInt(1, idMaquina); // Substitua 1 pelo valor que você deseja verificar
+
+            ResultSet rsMySQL = stmtMySQL.executeQuery();
+            ResultSet rsSQLServer = stmtSQLServer.executeQuery();
+
+            verificar = rsMySQL.next() && rsSQLServer.next();
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("error memoria" + e.getMessage());
+            throw new RuntimeException("Erro ao verificar a memória RAM", e);
         }
 
         return verificar;

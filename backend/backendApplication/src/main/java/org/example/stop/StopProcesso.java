@@ -1,7 +1,8 @@
 package org.example.stop;
 
 import org.example.componentes.Processo;
-import org.example.connection.Conexao;
+import org.example.connection.ConnectionMYSQL;
+import org.example.connection.ConnectionSQLSERVER;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,34 +12,36 @@ import java.sql.SQLException;
 
 public class StopProcesso {
 
-    public static void validarDesativarProcesso(int idMaquina) throws SQLException {
-        String sql = "SELECT * FROM processos WHERE desativar = TRUE and Maquina_idMaquina = ?";
+    public static void validarDesativarProcesso(Connection connMySQL, Connection connSQLServer, int idMaquina) throws SQLException {
+        String sql = "SELECT * FROM processos WHERE desativar = ? and fkMaquina = ?";
 
-        try (Connection conn = Conexao.getConexaoNuvem()) {
-            if (conn == null) {
-                System.err.println("Erro: Conexão com a nuvem é nula.");
-                return;
-            }
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, idMaquina);
-                ResultSet resposta = stmt.executeQuery();
+        try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
+             PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
-                if (resposta.next()) {
-                    try {
-                        PidProcesso.extrairPid(idMaquina);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        System.err.println("Erro ao extrair PID: " + e.getMessage());
-                    }
-                } else {
-                    System.out.println("Nenhum processo para desativar");
-                    Processo.cadastrarProcesso(idMaquina);
+            stmtMySQL.setString(1, "SIM");
+            stmtMySQL.setInt(2, idMaquina);
+            ResultSet respostaMySQL = stmtMySQL.executeQuery();
+
+            stmtSQLServer.setString(1, "SIM");
+            stmtSQLServer.setInt(2, idMaquina);
+            ResultSet respostaSQLServer = stmtSQLServer.executeQuery();
+
+            if (respostaMySQL.next() || respostaSQLServer.next()) {
+                try {
+                    PidProcesso.extrairPid(connMySQL,connSQLServer, idMaquina);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.err.println("Erro ao extrair PID: " + e.getMessage());
                 }
+            } else {
+                System.out.println("Nenhum processo para desativar");
+                Processo.cadastrarProcesso(connMySQL,connSQLServer ,idMaquina);
             }
         }
     }
 
-    public static void desativarProcesso(int pid, int idMaquina) {
+
+    public static void desativarProcesso(Connection connMySQL, Connection connSQLServer, int pid, int idMaquina) {
         try {
             // Comando para matar o processo (exemplo para Windows)
             String command = "taskkill /F /PID " + pid;
@@ -49,30 +52,34 @@ public class StopProcesso {
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
 
-            reativarProcesso(idMaquina, pid);
+            reativarProcesso(connMySQL, connSQLServer, idMaquina, pid);
         } catch (IOException | InterruptedException | SQLException e) {
             e.printStackTrace();
         }
     }
-    public static void reativarProcesso(int idMaquina, int pid) throws SQLException {
-        String sql = "DELETE FROM processos WHERE Maquina_idMaquina = ? AND pid = ?";
 
-        try (Connection conn = Conexao.getConexaoNuvem()) {
-            if (conn == null) {
-                System.err.println("Erro: Conexão com a nuvem é nula.");
-                return;
-            }
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, idMaquina);
-                stmt.setString(2, String.valueOf(pid));
-                int resposta = stmt.executeUpdate();
 
-                if (resposta > 0) {
-                    System.out.println("Processo reativado!");
-                } else {
-                    System.out.println("Nenhum processo para desativar");
-                }
+    public static void reativarProcesso(Connection connMySQL, Connection connSQLServer, int idMaquina, int pid) throws SQLException {
+        String sql = "DELETE FROM processos WHERE fkMaquina = ? AND pid = ?";
+
+        try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
+             PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
+
+            stmtMySQL.setInt(1, idMaquina);
+            stmtMySQL.setInt(2, pid);
+            int respostaMySQL = stmtMySQL.executeUpdate();
+
+            stmtSQLServer.setInt(1, idMaquina);
+            stmtSQLServer.setInt(2, pid);
+            int respostaSQLServer = stmtSQLServer.executeUpdate();
+
+            if (respostaMySQL > 0 && respostaSQLServer > 0) {
+                System.out.println("Processo reativado em ambas as conexões!");
+            } else {
+                System.out.println("Nenhum processo para desativar");
             }
         }
     }
-    }
+
+
+}

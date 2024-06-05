@@ -1,141 +1,94 @@
 package org.example.connection;
 
 import com.github.britooo.looca.api.core.Looca;
-import org.example.componentes.Maquina;
 import org.example.log.Log;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Conexao {
-    private static final String URL_LOCAL = "jdbc:mysql://localhost/sisguard";
-    private static final String URL_NUVEM = "jdbc:mysql://44.194.8.163/banco1";
-    private static final String USERNAME_LOCAL = "root";
-    private static final String SENHA_LOCAL = "root123";
-    private static final String SENHA_NUVEM = "urubu100";
-    private static final String USERNAME_NUVEM = "root";
+public abstract class Conexao {
+    protected static Connection conexaoMySQL = null;
+    protected static Connection conexaoSQLServer = null;
 
-    private static Connection conexaoLocal = null;
-    private static Connection conexaoNuvem = null;
-
-    static Looca looca = new Looca();
-
-    static String sistemaOperacional = "";
-
-    static Integer arquitetura = 0;
-
-    static String data = "";
-
-    static String logLevel = ""; //error warning
-
-    static Integer statusCode = 0; //404 exemplo
-
-    static String idMaquina = "";
-
-    static String mensagem = "";
-
-    static String hostname = "";
-
-    static String stackTrace = "";
+    private static Looca looca = new Looca();
+    private static String sistemaOperacional;
+    private static Integer arquitetura;
+    private static String hostname;
+    private static String data;
+    private static String logLevel;
+    private static Integer statusCode;
+    private static String idMaquina;
+    private static String mensagem;
+    private static String stackTrace;
 
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Erro ao carregar o driver JDBC", e);
-        }
-        try {
-            try {
-                conexaoNuvem = DriverManager.getConnection(URL_NUVEM, USERNAME_NUVEM, SENHA_NUVEM);
-            } catch (Exception e) {
-                conexaoLocal = DriverManager.getConnection(URL_LOCAL, USERNAME_LOCAL, SENHA_LOCAL);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao conectar ao banco de dados: " + e.getMessage(), e);
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+            conexaoMySQL = new ConnectionMYSQL().getConexaoEspecifica();
+            conexaoSQLServer = new ConnectionSQLSERVER().getConexaoEspecifica();
+        } catch (ClassNotFoundException | SQLException e) {
+            handleSQLException(e);
         }
     }
 
-    public static Connection getConexaoLocal() {
-        return conexaoLocal;
+    protected abstract Connection getConexaoEspecifica() throws SQLException;
+
+    public Connection getConexao() throws SQLException {
+        return getConexaoEspecifica();
+    }
+    public static Connection getConexaoMySQL() {
+        return conexaoMySQL;
     }
 
-    public static Connection getConexaoNuvem() {
-        return conexaoNuvem;
+    public static Connection getConexaoSQLServer() {
+        return conexaoSQLServer;
     }
 
-    public static Connection conexao(String email, String senha) throws SQLException {
-        if (email.isEmpty() || senha.isEmpty()) {
-            System.out.println("Erro no email e senha na conexão");
-            return null;
+    private static void handleSQLException(Exception ex) {
+        System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
+        sistemaOperacional = looca.getSistema().getSistemaOperacional();
+        arquitetura = looca.getSistema().getArquitetura();
+        hostname = looca.getRede().getParametros().getHostName();
+        data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date());
+        logLevel = "ERROR";
+        statusCode = 503;
+        idMaquina = "";
+        mensagem = "Erro ao conectar ao banco de dados: " + ex.getMessage();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
+        Log errorbanco = new Log(sistemaOperacional, arquitetura, hostname, data, logLevel, statusCode, idMaquina, mensagem, stackTrace);
+        System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+
+        try (FileWriter writer = new FileWriter(".\\errorbanco.txt", true)) {
+            writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+        } catch (IOException u) {
+            System.out.println("Erro ao gerar log" + u.getMessage());
         }
+    }
 
-        Connection conn = null;
-        ResultSet loginResult = null;
-
-        try {
-            ConnectionNuvem connNuvem = new ConnectionNuvem();
-            loginResult = connNuvem.loginNuvem(email, senha);
-
-            if (loginResult.next()) {
-                System.out.println("Seja bem-vindo");
-                conn = getConexaoNuvem();
-                System.out.println("Login na nuvem bem-sucedido!");
-            } else {
-                ConnectionLocal connLocal = new ConnectionLocal();
-                loginResult = connLocal.loginLocal(email, senha);
-
-                if (loginResult.next()) {
-                    System.out.println("Seja bem-vindo");
-                    conn = getConexaoLocal();
-                    System.out.println("Login local bem-sucedido!");
-                } else {
-                    System.out.println("Usuário não encontrado");
-                }
-            }
-
-            if (conn != null) {
-                Maquina.validarMaquina(conn);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-            sistemaOperacional = looca.getSistema().getSistemaOperacional();
-            arquitetura = looca.getSistema().getArquitetura();
-            hostname = looca.getRede().getParametros().getHostName();
-            data = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date());
-            logLevel = "ERROR";
-            statusCode = 503;
-            idMaquina = "";
-            mensagem = "Erro ao conectar ao banco de dados: " + ex.getMessage();
-
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            stackTrace = sw.toString().replace("\n", "").replace("\r", "").replace("\t", "");
-            Log errorbanco = new Log(sistemaOperacional, arquitetura, hostname, data, logLevel, statusCode, idMaquina, mensagem, stackTrace);
-            System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
-
-            try (FileWriter writer = new FileWriter(".\\errorbanco.txt", true)) {
-                writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
-            } catch (IOException u) {
-                System.out.println("Erro ao gerar log" + u.getMessage());
-            }
-        } finally {
-            if (loginResult != null) {
-                try {
-                    loginResult.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+    public static int executeUpdate(Connection connection, String sql, Object... parameters) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < parameters.length; i++) {
+            stmt.setObject(i + 1, parameters[i]);
         }
-        return conn;
+        return stmt.executeUpdate();
+    }
+
+    public static ResultSet executeQuery(Connection connection, String sql, Object... parameters) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < parameters.length; i++) {
+            stmt.setObject(i + 1, parameters[i]);
+        }
+        return stmt.executeQuery();
     }
 }
