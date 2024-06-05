@@ -41,8 +41,8 @@ public class Memoria {
         try (PreparedStatement stmtMySQL = connMySQL.prepareStatement(sql);
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
-            stmtMySQL.setInt(1, idMaquina); // Substitua 1 pelo valor que você deseja verificar
-            stmtSQLServer.setInt(1, idMaquina); // Substitua 1 pelo valor que você deseja verificar
+            stmtMySQL.setInt(1, idMaquina);
+            stmtSQLServer.setInt(1, idMaquina);
 
             ResultSet rsMySQL = stmtMySQL.executeQuery();
             ResultSet rsSQLServer = stmtSQLServer.executeQuery();

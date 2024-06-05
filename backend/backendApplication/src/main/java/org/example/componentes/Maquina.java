@@ -44,6 +44,7 @@ public class Maquina {
 
                     if (affectedRows > 0) {
                         ResultSet generatedKeys = stmtInsert.getGeneratedKeys();
+                        System.out.println("Máquina cadastrada com sucesso!");
                         if (generatedKeys.next()) {
                             return generatedKeys.getInt(1);
                         }

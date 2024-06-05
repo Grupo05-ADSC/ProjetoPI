@@ -37,7 +37,7 @@ public class Usuario {
                 stmt.setString(2, senha);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    System.out.println("Usuario validado");
+                    System.out.println("Usuário válidado com sucesso!");
                     Connection connMySQL = Conexao.getConexaoMySQL();
                     Connection connSQLServer = Conexao.getConexaoSQLServer();
                     Maquina.validarMaquina(connMySQL, connSQLServer);
