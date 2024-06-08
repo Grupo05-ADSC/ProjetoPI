@@ -56,8 +56,100 @@ const deletar = (req, res) => {
         })
     }
 }
+const editar = async (req, res) => {
+    const { nomeMaquina } = req.body.nome;
+    const { idMaquina, idDark } = req.params;
+
+    if (!idMaquina || !idDark || !nomeMaquina) {
+        return res.json({ error: "As variáveis estão undefined" });
+    }
+
+    try {
+        const respostaEditar = await maquinasModal.editar(idMaquina, idDark, nomeMaquina);
+        console.log("Resposta da edição da máquina:", respostaEditar);
+
+        if (respostaEditar.affectedRows > 0) {
+            const respostaNome = await nomeMaquina.editar(idMaquina);
+            console.log("Resposta da edição do nome:", respostaNome);
+
+            if (respostaNome.affectedRows > 0) {
+                return res.status(200).json({ message: "Máquina alterada!" });
+            } else {
+                return res.status(500).json({ message: "Erro ao editar o nome da máquina!" });
+            }
+        } else {
+            return res.status(500).json({ message: "Erro ao editar o nome da Máquina!" });
+        }
+    } catch (error) {
+        console.log("Erro na edição:", error);
+        return res.status(500).json({ error: "Erro na requisição!" });
+    }
+}
+
+const totalMaquinas = async (req, res) => {
+    const { nomeMaquina } = req.body.nome;
+    const { idMaquina, idDark } = req.params;
+
+    if (!nomeMaquina || !idEmpresa || !idMaquina) {
+        return res.json({ error: "As variáveis estão undefined" });
+    }
+
+    try {
+        const respostaTotalMaquinas = await maquinasModal.totalMaquinas(idMaquina, idDark);
+        console.log("Resposta da edição da máquina:", respostaTotalMaquinas);
+
+        if (respostaTotalMaquinas.affectedRows > 0) {
+            const respostaNome = await nomeMaquina.totalMaquinas(idMaquina);
+            console.log("Resposta de total de máquinas:", respostaNome);
+
+            if (respostaNome.affectedRows > 0) {
+                return res.status(200).json({ message: "Máquinas!" });
+            } else {
+                return res.status(500).json({ message: "Erro ao bsucar o total de máquinas!" });
+            }
+        } else {
+            return res.status(500).json({ message: "Erro ao bsucar o total de máquinas!" });
+        }
+    } catch (error) {
+        console.log("Erro na edição:", error);
+        return res.status(500).json({ error: "Erro na requisição!" });
+    }
+}
+
+const maquinasAtivas = async (req, res) => {
+    const { nomeMaquina } = req.body.nome;
+    const { idMaquina, idDark } = req.params;
+
+    if (!nomeMaquina || !idEmpresa || !idMaquina) {
+        return res.json({ error: "As variáveis estão undefined" });
+    }
+
+    try {
+        const respostaMaquinasAtivas = await maquinasModal.maquinasAtivas(idMaquina, idDark);
+        console.log("Resposta da edição da máquina:", respostaMaquinasAtivas);
+
+        if (respostaMaquinasAtivas.affectedRows > 0) {
+            const respostaNome = await nomeMaquina.maquinasAtivas(idMaquina);
+            console.log("Resposta de total de máquinas ativas:", respostaNome);
+
+            if (respostaNome.affectedRows > 0) {
+                return res.status(200).json({ message: "Máquinas ativas encontradas!" });
+            } else {
+                return res.status(500).json({ message: "Erro ao ao bsucar o total de máquinas ativas!" });
+            }
+        } else {
+            return res.status(500).json({ message: "Erro ao ao bsucar o total de máquinas ativas!" });
+        }
+    } catch (error) {
+        console.log("Erro na edição:", error);
+        return res.status(500).json({ error: "Erro na requisição!" });
+    }
+};
 module.exports = {
     cadastro,
     mostrar,
-    deletar
+    deletar,
+    editar,
+    totalMaquinas,
+    maquinasAtivas
 }

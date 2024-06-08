@@ -12,8 +12,24 @@ const deletar = (idMaquina) => {
     const instrucao = `DELETE * FROM maquinas where idMaquina = ${idMaquina}`
     return db.executar(instrucao)
 }
+const editar = (idMaquina, idDark, nomeMaquina) => {
+    const instrucao = `UPDATE maquina SET nomeMaquina = "${nomeMaquina}" WHERE idMaquina = ${idMaquina} and fkDarkStore = ${idDark};`
+    return db.executar(instrucao)
+}
+const totalMaquinas = (idMaquina, idDark) => {
+    const instrucao = `SELECT COUNT(*) AS total_maquinas FROM maquina WHERE idMaquina = ${idMaquina} and fkDarkStore = ${idDark}`
+    return db.executar(instrucao)
+}
+const maquinasAtivas = (idMaquina, idDark) => {
+    const instrucao = `SELECT COUNT(*) AS maquinas_ativas FROM maquina WHERE idMaquina = ${idMaquina} and fkDarkStore = ${idDark}`
+    return db.executar(instrucao)
+}
+
 module.exports = {
     cadastro,
     mostrar,
-    deletar
+    deletar,
+    editar,
+    totalMaquinas,
+    maquinasAtivas
 }
