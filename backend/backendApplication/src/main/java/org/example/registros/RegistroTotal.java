@@ -1,7 +1,7 @@
 package org.example.registros;
 
-import org.example.connection.ConnectionMYSQL;
-import org.example.connection.ConnectionSQLSERVER;
+import org.example.darkstore.Darkstore;
+import org.example.slack.NotificacaoSlack;
 import org.example.stop.StopProcesso;
 
 import java.sql.Connection;
@@ -19,9 +19,10 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoDisco = DiscoRegistro.extrairDisco();
+            dadoDisco = dadoDisco.replace(',', '.'); // Substituir vírgula por ponto
             int fkComponente = 1;
-            int fkDarkstore = 1;
-            int fkMetricaIdeal = 1;
+            int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
+            int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 
             stmtMySQL.setString(1, dadoDisco);
             stmtMySQL.setInt(2, fkComponente);
@@ -39,6 +40,7 @@ public class RegistroTotal {
             int rsSQLServer = stmtSQLServer.executeUpdate();
 
             if (rsMySQL > 0 && rsSQLServer > 0) {
+                NotificacaoSlack.verificarDiscoSlack(parseDoubleSafe(dadoDisco));
                 cadastrarRegistroRam(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
@@ -57,9 +59,11 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoRam = RamRegistro.extrairRam();
+            dadoRam = dadoRam.replace(',', '.'); // Substituir vírgula por ponto
+            dadoRam = removeUnidade(dadoRam); // Remover unidade de medida
             int fkComponente = 2;
-            int fkDarkstore = 1;
-            int fkMetricaIdeal = 1;
+            int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
+            int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 
             stmtMySQL.setString(1, dadoRam);
             stmtMySQL.setInt(2, fkComponente);
@@ -77,6 +81,7 @@ public class RegistroTotal {
             int rsSQLServer = stmtSQLServer.executeUpdate();
 
             if (rsMySQL > 0 && rsSQLServer > 0) {
+                NotificacaoSlack.verificarRAMSlack(parseDoubleSafe(dadoRam));
                 cadastrarRegistroCPU(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
@@ -95,9 +100,11 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoCPU = ProcessadorRegistro.extrairCPU();
+            dadoCPU = dadoCPU.replace(',', '.'); // Substituir vírgula por ponto
+            dadoCPU = removeUnidade(dadoCPU); // Remover unidade de medida
             int fkComponente = 3;
-            int fkDarkstore = 1;
-            int fkMetricaIdeal = 1;
+            int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
+            int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 
             stmtMySQL.setString(1, dadoCPU);
             stmtMySQL.setInt(2, fkComponente);
@@ -115,6 +122,7 @@ public class RegistroTotal {
             int rsSQLServer = stmtSQLServer.executeUpdate();
 
             if (rsMySQL > 0 && rsSQLServer > 0) {
+                NotificacaoSlack.verificarCPUSlack(parseDoubleSafe(dadoCPU));
                 StopProcesso.validarDesativarProcesso(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Erro ao cadastrar componente");
@@ -122,5 +130,18 @@ public class RegistroTotal {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private static double parseDoubleSafe(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            System.out.println("Erro ao converter string para double: " + value);
+            return 0.0;
+        }
+    }
+
+    private static String removeUnidade(String value) {
+        return value.replaceAll("[^\\d.]", ""); // Remove tudo que não é dígito ou ponto
     }
 }

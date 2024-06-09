@@ -1,229 +1,96 @@
 package org.example.slack;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import com.github.britooo.looca.api.core.Looca;
-import com.github.britooo.looca.api.group.discos.Disco;
-import com.github.britooo.looca.api.group.discos.DiscoGrupo;
-import com.github.britooo.looca.api.group.memoria.Memoria;
-import com.github.britooo.looca.api.group.processador.Processador;
 import com.slack.api.Slack;
+import com.slack.api.SlackConfig;
 import com.slack.api.webhook.Payload;
 import com.slack.api.webhook.WebhookResponse;
-import org.example.ConexaoSQLSERVER;
-import org.jetbrains.annotations.NotNull;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.example.componentes.Componentes;
+import org.example.connection.Conexao;
+import org.example.darkstore.Darkstore;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class NotificacaoSlack {
-    private ConexaoSQLSERVER conexaoSQLSERVER = new ConexaoSQLSERVER();
-    Looca looca = new Looca();
-    Slack slack = Slack.getInstance();
-    private String mensagem;
 
-    private  Double alertaPadrao = 10.0;
-    private Double criticoPadrao = 20.0;
-    private Double alertaRAM = null;
-    private Double alertaCPU = null;
-    private Double alertaDisco = null;
-    private Double criticoRAM = null;
-    private Double criticoCPU = null;
-    private Double criticoDisco = null;
-    private Integer idDark = conexaoSQLSERVER.getIdDark();
+    private static String mensagem;
 
-    private boolean esperarRAM = false;
-    private boolean esperarCPU = false;
-    private boolean esperarDisco = false;
+    private static Double alertaPadrao;
+    private static Double criticoPadrao;
+    private static Double alertaRAM;
+    private static Double alertaCPU;
+    private static Double alertaDisco;
+    private static Double criticoRAM;
+    private static Double criticoCPU;
+    private static Double criticoDisco;
+    private static boolean esperarRAM = false;
+    private static boolean esperarCPU = false;
+    private static boolean esperarDisco = false;
 
+    private static String name = Componentes.hostName();
 
-    public Double capturarAlertaPadrao(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
+    static int idDark = 1;
 
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select alertaPadrao from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
+    static {
+        try {
+            Connection connMysql = Conexao.getConexaoMySQL();
+            Connection connSQLServer = Conexao.getConexaoSQLServer();
 
-            if (respostaServer.next()) {
-                alertaPadrao = respostaServer.getDouble("alertaPadrao");
+            String sql = "SELECT alertaPadrao, criticaPadrao, alertaRAM, alertaCPU, alertaDisco, criticoRAM, criticoCPU, criticoDisco FROM metrica_ideal WHERE fkDarkStore = ?";
+            PreparedStatement stmt = connMysql.prepareStatement(sql);
+            PreparedStatement stmt2 = connSQLServer.prepareStatement(sql);
+            stmt.setInt(1, idDark);
+            stmt2.setInt(1, idDark);
+            ResultSet rs = stmt.executeQuery();
+            ResultSet rs2 = stmt2.executeQuery();
+
+            if (rs.next() || rs2.next()) {
+                alertaPadrao = rs.getDouble("alertaPadrao");
+                criticoPadrao = rs.getDouble("criticaPadrao");
+                alertaRAM = rs.getDouble("alertaRAM");
+                alertaCPU = rs.getDouble("alertaCPU");
+                alertaDisco = rs.getDouble("alertaDisco");
+                criticoRAM = rs.getDouble("criticoRAM");
+                criticoCPU = rs.getDouble("criticoCPU");
+                criticoDisco = rs.getDouble("criticoDisco");
             } else {
-                System.out.println("Não consegui capturar as metricas do alertaPadrao");
-                return alertaPadrao;
+                throw new RuntimeException("Não foi possível encontrar métricas para a darkstore com o ID: " + idDark);
             }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return alertaPadrao;
-    }
-    public Double capturarCriticoPadrao(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select criticoPadrao from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                criticoPadrao = respostaServer.getDouble("criticoPadrao");
-            } else {
-                System.out.println("Não consegui capturar as metricas do criticoPadrao");
-                return criticoPadrao;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return criticoPadrao;
     }
 
+    private static Slack createSlackInstance() {
+        try {
+            SSLContextBuilder builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, (chain, authType) -> true);
 
-    public Double capturarAlertaRam(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(builder.build())
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .build();
+
+            return Slack.getInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select alertaRAM from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                alertaRAM = respostaServer.getDouble("alertaRAM");
-            } else {
-                System.out.println("Não consegui capturar as metricas do alertaRAM");
-                return alertaRAM;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return alertaRAM;
-    }
-    public Double capturarCriticoRam(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select criticoRAM from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                criticoRAM = respostaServer.getDouble("criticoRAM");
-            } else {
-                System.out.println("Não consegui capturar as metricas do criticoRAM");
-                return criticoRAM;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return criticoRAM;
     }
 
-    public Double capturarAlertaCpu(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select alertaCPU from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                alertaCPU = respostaServer.getDouble("alertaCPU");
-            } else {
-                System.out.println("Não consegui capturar as metricas do alertaCPU");
-                return alertaCPU;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return alertaCPU;
-    }
-    public Double capturarCriticoCpu(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select criticoCPU from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                criticoCPU = respostaServer.getDouble("criticoCPU");
-            } else {
-                System.out.println("Não consegui capturar as metricas do criticoCPU");
-                return criticoCPU;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return criticoCPU;
-    }
-
-    public Double capturarAlertaDisco(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select alertaDisco from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                alertaDisco = respostaServer.getDouble("alertaDisco");
-            } else {
-                System.out.println("Não consegui capturar as metricas do alertaDisco");
-                return alertaDisco;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return alertaDisco;
-    }
-    public Double capturarCriticoDisco(String fkDarkstore) {
-        if (fkDarkstore.isEmpty()) {
-            System.out.println("Darkstore inválida");
-            return null;
-        }
-
-        try (Connection conexaoBanco = DriverManager.getConnection(conexaoSQLSERVER.getUrlNuvem(), conexaoSQLSERVER.getUserNuvem(), conexaoSQLSERVER.getSenhaNuvem())) {
-            ResultSet respostaServer = conexaoBanco.createStatement().executeQuery(
-                    "select criticoDisco from metrica_ideal where fkDarkStore = " + idDark + ";"
-            );
-
-            if (respostaServer.next()) {
-                criticoDisco = respostaServer.getDouble("criticoDisco");
-            } else {
-                System.out.println("Não consegui capturar as metricas do criticoDisco");
-                return criticoDisco;
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao conectar ao banco de dados: " + ex.getMessage());
-        }
-        return criticoDisco;
-    }
-
-
-    public Boolean esperar5Minutos(Boolean esperar) {
+    public static Boolean esperar5Minutos(Boolean esperar) throws SQLException {
         if (!esperar) {
             enviarMensagem(mensagem);
             System.out.println(mensagem + " caso o problema persistir voltaremos em 5 minutos");
@@ -238,114 +105,49 @@ public class NotificacaoSlack {
                     esperarDisco = false;
                 }
             }, 5, TimeUnit.MINUTES);
-
         }
         return esperar;
     }
 
-    public void enviarMensagem(String mensagem) {
-        if (conexaoSQLSERVER.getUSERNAME() != null && conexaoSQLSERVER.getCHANNEL() != null) {
-            Payload payload = Payload.builder()
-                    .channel(conexaoSQLSERVER.getCHANNEL())
-                    .username(conexaoSQLSERVER.getUSERNAME())
-                    .text(mensagem)
-                    .build();
-            try {
-                WebhookResponse response = slack.send(conexaoSQLSERVER.getWEBHOOK_URL(), payload);
-                if (response.getCode() == 200) {
-                } else {
-                    System.err.println("Erro ao enviar mensagem para o Slack: " + response.getMessage());
-                }
-            } catch (IOException e) {
-                System.err.println("Erro ao enviar mensagem para o Slack: " + e.getMessage());
+    public static void enviarMensagem(String mensagem) {
+        String webhookUrl = "https://hooks.slack.com/services/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";
+        String username = name;
+        String channel = obterCanalDoBancoDeDados();
+        Slack slack = createSlackInstance();
+
+        Payload payload = Payload.builder()
+                .channel(channel)
+                .username(username)
+                .text(mensagem)
+                .build();
+        try {
+            WebhookResponse response = slack.send(webhookUrl, payload);
+            if (response.getCode() != 200) {
+                System.err.println("Erro ao enviar mensagem para o Slack. Código de resposta: " + response.getCode() + ", Mensagem: " + response.getMessage());
             }
-        } else {
-            System.out.println("Erro de credencial na configuração do Slack");
+        } catch (IOException e) {
+            System.err.println("Erro ao enviar mensagem para o Slack: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar mensagem para o Slack: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public void verificarMetricaAlertas() {
-        Memoria memoria = looca.getMemoria();
-        Processador processador = looca.getProcessador();
+    public static void verificarDiscoSlack(double discoUso) throws SQLException {
+        if (alertaDisco != null && criticoDisco != null) {
+            if (discoUso >= alertaDisco && discoUso < criticoDisco) {
+                mensagem = "Disco em alerta, fique de olho !";
+                esperar5Minutos(esperarDisco);
+                esperarDisco = true;
 
-        long memoriaUsada = memoria.getEmUso();
-        long memoriaTotal = memoria.getTotal();
-
-
-        DiscoGrupo grupoDeDiscos = looca.getGrupoDeDiscos();
-
-        for (Disco disco : grupoDeDiscos.getDiscos()) {
-            long totalDisco = disco.getTamanho();
-            double tamanhoGB = totalDisco / (1024.0 * 1024.0 * 1024.0); // Convertendo bytes para gigabytes
-            long usadoDisco = disco.getBytesDeEscritas();
-            double usadoGB = usadoDisco / (1024.0 * 1024.0 * 1024.0);
-
-//            precisa alterar esses valores aqui
-            double ramUso = (double) memoriaUsada / memoriaTotal * 100;
-            double discoUso = usadoGB / tamanhoGB * 100;
-            double cpuUso = processador.getUso();
-
-
-            if (alertaRAM != null) {
-                if (ramUso >= alertaRAM && ramUso < criticoRAM) {
-                    mensagem = "memória RAM em alerta, fique de olho !";
-                    esperar5Minutos(esperarRAM);
-                    esperarRAM = true;
-
-                } else if (ramUso >= criticoRAM) {
-                    mensagem = "memória RAM em estado crítico, fique de olho !";
-                    esperar5Minutos(esperarRAM);
-                    esperarRAM = true;
-                }
-            } else {
-                if (ramUso >= alertaPadrao && ramUso < criticoPadrao) {
-                    mensagem = "memória RAM em alerta";
-                    esperar5Minutos(esperarRAM);
-                    esperarRAM = true;
-
-                } else if (ramUso >= criticoPadrao) {
-                    mensagem = "memória RAM em estado crítico";
-                    esperar5Minutos(esperarRAM);
-                    esperarRAM = true;
-                }
+            } else if (discoUso >= criticoDisco) {
+                mensagem = "Disco em estado crítico, fique de olho !";
+                esperar5Minutos(esperarDisco);
+                esperarDisco = true;
             }
-
-            if (alertaCPU != null) {
-                if (cpuUso >= alertaCPU && cpuUso < criticoCPU) {
-                    mensagem = "CPU em alerta, fique de olho !";
-                    esperar5Minutos(esperarCPU);
-                    esperarCPU = true;
-
-                } else if (cpuUso >= criticoCPU) {
-                    mensagem = "CPU em estado crítico, fique de olho !";
-                    esperar5Minutos(esperarCPU);
-                    esperarCPU = true;
-                }
-            } else {
-                if (cpuUso >= alertaPadrao && cpuUso < criticoPadrao) {
-                    mensagem = "CPU em alerta";
-                    esperar5Minutos(esperarCPU);
-                    esperarCPU = true;
-
-                } else if (cpuUso >= criticoPadrao) {
-                    mensagem = "CPU em estado crítico";
-                    esperar5Minutos(esperarCPU);
-                    esperarCPU = true;
-                }
-            }
-
-            if (alertaDisco != null) {
-                if (discoUso >= alertaDisco && discoUso < criticoDisco) {
-                    mensagem = "Disco em alerta, fique de olho !";
-                    esperar5Minutos(esperarDisco);
-                    esperarDisco = true;
-
-                } else if (discoUso >= criticoDisco) {
-                    mensagem = "Disco em estado crítico, fique de olho !";
-                    esperar5Minutos(esperarDisco);
-                    esperarDisco = true;
-                }
-            } else {
+        } else {
+            if (alertaPadrao != null && criticoPadrao != null) {
                 if (discoUso >= alertaPadrao && discoUso < criticoPadrao) {
                     mensagem = "Disco em alerta";
                     esperar5Minutos(esperarDisco);
@@ -356,39 +158,95 @@ public class NotificacaoSlack {
                     esperar5Minutos(esperarDisco);
                     esperarDisco = true;
                 }
+            } else {
+                mensagem = "Os valores de alerta padrão e crítico padrão não foram encontrados!";
             }
         }
     }
 
 
 
+    public static void verificarCPUSlack(double cpuUso) throws SQLException {
+        if (alertaCPU != null && criticoCPU != null) {
+            if (cpuUso >= alertaCPU && cpuUso < criticoCPU) {
+                mensagem = "CPU em alerta, fique de olho !";
+                esperar5Minutos(esperarCPU);
+                esperarCPU = true;
 
+            } else if (cpuUso >= criticoCPU) {
+                mensagem = "CPU em estado crítico, fique de olho !";
+                esperar5Minutos(esperarCPU);
+                esperarCPU = true;
+            }
+        } else {
+            if (alertaPadrao != null && criticoPadrao != null) {
+                if (cpuUso >= alertaPadrao && cpuUso < criticoPadrao) {
+                    mensagem = "CPU em alerta";
+                    esperar5Minutos(esperarCPU);
+                    esperarCPU = true;
 
-
-
-
-    public ConexaoSQLSERVER getConexaoSQLSERVER() {
-        return conexaoSQLSERVER;
+                } else if (cpuUso >= criticoPadrao) {
+                    mensagem = "CPU em estado crítico";
+                    esperar5Minutos(esperarCPU);
+                    esperarCPU = true;
+                }
+            } else {
+                mensagem = "Os valores de alerta padrão e crítico padrão não foram encontrados!";
+            }
+        }
     }
 
-    public Double getAlertaPadrao() {
-        return alertaPadrao;
+
+    public static void verificarRAMSlack(double ramUso) throws SQLException {
+        if (alertaRAM != null && criticoRAM != null) {
+            if (ramUso >= alertaRAM && ramUso < criticoRAM) {
+                mensagem = "memória RAM em alerta, fique de olho !";
+                esperar5Minutos(esperarRAM);
+                esperarRAM = true;
+
+            } else if (ramUso >= criticoRAM) {
+                mensagem = "memória RAM em estado crítico, fique de olho !";
+                esperar5Minutos(esperarRAM);
+                esperarRAM = true;
+            }
+        } else {
+            if (alertaPadrao != null && criticoPadrao != null) { // Verificar se os valores não são nulos
+                if (ramUso >= alertaPadrao && ramUso < criticoPadrao) {
+                    mensagem = "memória RAM em alerta";
+                    esperar5Minutos(esperarRAM);
+                    esperarRAM = true;
+
+                } else if (ramUso >= criticoPadrao) {
+                    mensagem = "memória RAM em estado crítico";
+                    esperar5Minutos(esperarRAM);
+                    esperarRAM = true;
+                }
+            } else {
+                mensagem = "Os valores de alerta padrão e crítico padrão não foram encontrados!";
+            }
+        }
     }
 
-    public Double getCriticoPadrao() {
-        return criticoPadrao;
-    }
 
-    public Double getAlertaRAM() {
-        return alertaRAM;
-    }
+    private static String obterCanalDoBancoDeDados() {
+        String canal = "";
+        String sql = "SELECT canalSlack FROM empresa WHERE idDarkstore = 1";
 
-    public Double getcriticoRAM() {
-        return criticoRAM;
-    }
+        try  {
+            Connection connMysql = Conexao.getConexaoMySQL();
+            Connection connSQLServer = Conexao.getConexaoSQLServer();
 
-    public Integer getIdDark() {
-        return idDark;
-    }
+            PreparedStatement stmtMysql = connMysql.prepareStatement(sql);
+            PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql);
 
+            ResultSet rs = stmtMysql.executeQuery();
+            ResultSet rs2 = stmtSQLServer.executeQuery();
+            if (rs.next() || rs2.next()) {
+                canal = rs.getString("canalSlack");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao obter o canal do Slack do banco de dados: " + e.getMessage());
+        }
+        return canal;
+    }
 }

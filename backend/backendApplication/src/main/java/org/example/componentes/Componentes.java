@@ -43,6 +43,9 @@ public class Componentes {
         return looca.getMemoria().getEmUso();
     }
 
+    public static String hostName() {
+        return looca.getRede().getParametros().getHostName();
+    }
 
     public static Memoria memoriaRamUsoRegistro() {
         return looca.getMemoria();
