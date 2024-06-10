@@ -1,0 +1,11 @@
+{
+sistema Operacional: Windows
+arquitetura: 64
+hostname: DESKTOP-37HPSIQ
+Data: 10/06/2024 15:03:20.695
+logLevel: ERROR
+statusCode: 503
+idMaquina: 
+mensagem: Erro ao conectar ao banco de dados: Access denied for user 'root'@'localhost' (using password: YES)
+stackTrace: java.sql.SQLException: Access denied for user 'root'@'localhost' (using password: YES)at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:130)at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:825)at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:446)at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:239)at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:188)at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:681)at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:229)at org.example.connection.ConnectionMYSQL.getConexaoEspecifica(ConnectionMYSQL.java:13)at org.example.connection.Conexao.<clinit>(Conexao.java:34)at org.example.login.Usuario.validarUser(Usuario.java:18)at org.example.Main.main(Main.java:24)
+}
