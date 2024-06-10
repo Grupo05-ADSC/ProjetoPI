@@ -69,11 +69,20 @@ public abstract class Conexao {
         Log errorbanco = new Log(sistemaOperacional, arquitetura, hostname, data, logLevel, statusCode, idMaquina, mensagem, stackTrace);
         System.out.println(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
 
-        try (FileWriter writer = new FileWriter(".\\errorbanco.txt", true)) {
-            writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
-        } catch (IOException u) {
-            System.out.println("Erro ao gerar log" + u.getMessage());
-        }
+//        try (FileWriter writer = new FileWriter(".\\errorbanco.txt", true)) {
+//            writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+//        } catch (IOException u) {
+//            System.out.println("Erro ao gerar log" + u.getMessage());
+//        }
+
+            String dataAtual = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            String nomeArquivoLog = String.format(".\\log-%s.txt", dataAtual);
+
+            try (FileWriter writer = new FileWriter(nomeArquivoLog, true)) {
+                writer.write(errorbanco.toString().replace("idMaquina: null\n", "").replace("hostname: null\n", "").replace("\t", ""));
+            } catch (IOException u) {
+                System.out.println("Erro ao salvar log: " + u.getMessage());
+            }
     }
 
     public static int executeUpdate(Connection connection, String sql, Object... parameters) throws SQLException {
