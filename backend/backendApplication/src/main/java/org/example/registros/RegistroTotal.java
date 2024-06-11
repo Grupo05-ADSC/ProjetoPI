@@ -19,7 +19,7 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoDisco = DiscoRegistro.extrairDisco();
-            dadoDisco = dadoDisco.replace(',', '.'); // Substituir vírgula por ponto
+            dadoDisco = dadoDisco.replace(',', '.');
             int fkComponente = 1;
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
@@ -59,8 +59,8 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoRam = RamRegistro.extrairRam();
-            dadoRam = dadoRam.replace(',', '.'); // Substituir vírgula por ponto
-            dadoRam = removeUnidade(dadoRam); // Remover unidade de medida
+            dadoRam = dadoRam.replace(',', '.');
+            dadoRam = removeUnidade(dadoRam);
             int fkComponente = 2;
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
@@ -100,8 +100,8 @@ public class RegistroTotal {
              PreparedStatement stmtSQLServer = connSQLServer.prepareStatement(sql)) {
 
             String dadoCPU = ProcessadorRegistro.extrairCPU();
-            dadoCPU = dadoCPU.replace(',', '.'); // Substituir vírgula por ponto
-            dadoCPU = removeUnidade(dadoCPU); // Remover unidade de medida
+            dadoCPU = dadoCPU.replace(',', '.');
+            dadoCPU = removeUnidade(dadoCPU);
             int fkComponente = 3;
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
@@ -142,6 +142,6 @@ public class RegistroTotal {
     }
 
     private static String removeUnidade(String value) {
-        return value.replaceAll("[^\\d.]", ""); // Remove tudo que não é dígito ou ponto
+        return value.replaceAll("[^\\d.]", "");
     }
 }
