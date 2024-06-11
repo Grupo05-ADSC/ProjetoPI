@@ -210,7 +210,7 @@ public class NotificacaoSlack {
                 esperarRAM = true;
             }
         } else {
-            if (alertaPadrao != null && criticoPadrao != null) { // Verificar se os valores não são nulos
+            if (alertaPadrao != null && criticoPadrao != null) {
                 if (ramUso >= alertaPadrao && ramUso < criticoPadrao) {
                     mensagem = "memória RAM em alerta";
                     esperar5Minutos(esperarRAM);
@@ -230,7 +230,7 @@ public class NotificacaoSlack {
 
     private static String obterCanalDoBancoDeDados() {
         String canal = "";
-        String sql = "SELECT canalSlack FROM empresa WHERE idDarkstore = 1";
+        String sql = "SELECT canalSlack FROM darkstore WHERE fkEmpresa = 1";
 
         try  {
             Connection connMysql = Conexao.getConexaoMySQL();

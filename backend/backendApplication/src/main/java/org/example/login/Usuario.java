@@ -37,13 +37,17 @@ public class Usuario {
                 stmt.setString(2, senha);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    System.out.println("Usuário válidado com sucesso!");
+                    System.out.println("""
+                            𝙇𝙤𝙜𝙞𝙣 𝙧𝙚𝙖𝙡𝙞𝙯𝙖𝙙𝙤 𝙘𝙤𝙢 𝙨𝙪𝙘𝙚𝙨𝙨𝙤!
+                            """);
                     Connection connMySQL = Conexao.getConexaoMySQL();
                     Connection connSQLServer = Conexao.getConexaoSQLServer();
                     Maquina.validarMaquina(connMySQL, connSQLServer);
                     return true;
                 } else {
-                    System.out.println("Usuário não encontrado ou senha incorreta.");
+                    System.out.println("""
+                            𝙐𝙨𝙪𝙖𝙧𝙞𝙤 𝙣𝙖𝙤 𝙚𝙣𝙘𝙤𝙣𝙩𝙧𝙖𝙣𝙙𝙤 𝙤𝙪 𝙨𝙚𝙣𝙝𝙖 𝙞𝙣𝙫𝙖𝙡𝙞𝙙𝙖!
+                            """);
                     return false;
                 }
             } catch (SQLException e) {
