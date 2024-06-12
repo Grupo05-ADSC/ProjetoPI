@@ -29,36 +29,36 @@ function executar(instrucao) {
     });
   });
 }
-// const sql = require('mssql');
+const sql = require('mssql');
 
-// const poolServer = sql.createPool({
-//   host: '52.200.17.70',
-//   user: 'aluno',
-//   database: 'sisguard',
-//   password: 'Aluno123!',
-// });
+const poolServer = sql.createPool({
+  host: '52.200.17.70',
+  user: 'aluno',
+  database: 'sisguard',
+  password: 'Aluno123!',
+});
 
-// function executar(instrucao) {
-//   return new Promise((resolve, reject) => {
-//     poolServer.getConnection((err, connection) => {
-//       if (err) {
-//         console.error('Erro ao obter conexão do pool:', err);
-//         reject(err);
-//         return;
-//       }
-//       connection.query(instrucao, (error, results) => {
-//         connection.release(); 
+function executar(instrucao) {
+  return new Promise((resolve, reject) => {
+    poolServer.getConnection((err, connection) => {
+      if (err) {
+        console.error('Erro ao obter conexão do pool:', err);
+        reject(err);
+        return;
+      }
+      connection.query(instrucao, (error, results) => {
+        connection.release(); 
 
-//         if (error) {
-//           console.error('Erro ao executar a instrução:', error);
-//           reject(error);
-//           return;
-//         }
-//         resolve(results);
-//       });
-//     });
-//   });
-// }
+        if (error) {
+          console.error('Erro ao executar a instrução:', error);
+          reject(error);
+          return;
+        }
+        resolve(results);
+      });
+    });
+  });
+}
 
 module.exports = {
   executar
