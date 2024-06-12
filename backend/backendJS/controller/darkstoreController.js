@@ -2,7 +2,8 @@ const darkstoreModal = require("../modal/darkstoreModal")
 const enderecoModal = require("../modal/enderecoModal")
 
 const mostrar = (req, res) => {
-    const idEmpresa = req.params.idEmpresa
+    const idEmpresa = req.params.idEmpresa;
+    console.log("controller dark mostrar");
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})
@@ -20,18 +21,18 @@ const mostrar = (req, res) => {
     }
 }
 
-const cadastro = async (req, res) => {
-    const { nome, cep, numero, bairro, estado, rua, cidade } = req.body;
-    const { idEmpresa } = req.params;
+const cadastrar = async (req, res) => {
+    const { nome, cep, numero, bairro, estado, rua, cidade, empresa } = req.body;
+    // const { empresa } = req.params;
 
-    if (!nome || !idEmpresa || !rua || !cep || !estado || !bairro || !cidade || !numero) {
+    if (!nome || !empresa || !rua || !cep || !estado || !bairro || !cidade || !numero) {
         return res.json({ error: "As variáveis estão undefined" });
     }
     try {
-        const respostaCadastro = await darkstoreModal.cadastro(nome, idEmpresa);
+        const respostaCadastrar = await darkstoreModal.cadastrar(nome, empresa);
 
-        if (respostaCadastro) {
-            const respostaId = await darkstoreModal.mostrar2(idEmpresa, nome);
+        if (respostaCadastrar) {
+            const respostaId = await darkstoreModal.mostrar2(empresa, nome);
             const idDarkStore = respostaId[0].idDarkstore;
 
             if (idDarkStore) {
@@ -61,7 +62,7 @@ const deletar = (req, res) => {
     if(idEmpresa === "" || idDark === "") {
         return res.json({error: "As variaveis está undefined"})
     }else {
-        darkstoreModal.deletar(idEmpresa, idDark)
+        darkstoreModal.deletarm(idEmpresa, idDark),darkstoreModal.deletar(idEmpresa, idDark)
         .then(function(resposta) {
             if(resposta) {
                 return res.json({messege: "Dark Store removida"})
@@ -74,26 +75,30 @@ const deletar = (req, res) => {
     }
 }
 const editar = async (req, res) => {
-    const { nome, cep, numero, bairro, estado, rua, cidade } = req.body;
-    const { idEmpresa, idDark } = req.params;
+    const Nome = req.body.nome
+    const idDark = req.params.idDark
+    console.log('nome controller ==> ',Nome);
 
-    if (!nome || !idEmpresa || !idDark || !rua || !cep || !estado || !bairro || !cidade || !numero) {
+    // const { nome } = req.body;
+    // const { idDark } = req.params;
+
+    if (!Nome || !idDark) {
         return res.json({ error: "As variáveis estão undefined" });
     }
 
     try {
-        const respostaEditar = await darkstoreModal.editar(idDark, idEmpresa, nome);
+        const respostaEditar = await darkstoreModal.editar(idDark, Nome);
         console.log("Resposta da edição da DarkStore:", respostaEditar);
 
         if (respostaEditar.affectedRows > 0) {
-            const respostaEndereco = await enderecoModal.editar(idDark, cep, estado, cidade, bairro, rua, numero);
-            console.log("Resposta da edição do endereço:", respostaEndereco);
+            // const respostaEndereco = await enderecoModal.editar(idDark, cep, estado, cidade, bairro, rua, numero);
+            // console.log("Resposta da edição do endereço:", respostaEndereco);
 
-            if (respostaEndereco.affectedRows > 0) {
+        //     if (respostaEndereco.affectedRows > 0) {
                 return res.status(200).json({ message: "DarkStore alterada!" });
-            } else {
-                return res.status(500).json({ message: "Erro ao editar o endereço da DarkStore!" });
-            }
+        //     } else {
+        //         return res.status(500).json({ message: "Erro ao editar o endereço da DarkStore!" });
+        //     }
         } else {
             return res.status(500).json({ message: "Erro ao editar o nome da DarkStore!" });
         }
@@ -105,7 +110,7 @@ const editar = async (req, res) => {
 
 
 module.exports = {
-    cadastro,
+    cadastrar,
     mostrar,
     deletar,
     editar

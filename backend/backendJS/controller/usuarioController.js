@@ -47,12 +47,12 @@ const login = (req, res) => {
 };
 
 const cadastro = (req, res) => {
-    const {nome,email, senha, cnpj} = req.body
+    const {nome,email, senha, cnpj, plano} = req.body
 
-    if(nome === "" || email === "" || senha === "" || cnpj === "") {
+    if(nome === "" || email === "" || senha === "" || cnpj === ""|| plano === "") {
         return res.json({error: "Variaveis undefined"})
     }else {
-        usuarioModal.cadastro(nome,email,senha,cnpj)
+        usuarioModal.cadastro(nome,email,senha,cnpj, plano)
         .then(function(resposta) {
             if (resposta) {
                 return res.json({messege: "deu certo no controller"})

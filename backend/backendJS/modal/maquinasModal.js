@@ -1,19 +1,27 @@
 const db = require("./db/db")
 
-const cadastro = (IP, idDarkStore) => {
-    const instrucao = `INSERT INTO maquinas(IP, fkDarkstore) VALUES(${IP}, ${idDarkStore})`
+const cadastro = (Ip, idDark) => {
+    const instrucao = `INSERT INTO maquina(IP, fkDarkstore) VALUES(${Ip}, ${idDark})`
     return db.executar(instrucao)
 }
 const mostrar = (idEmpresa) => {
-    const instrucao = `SELECT * FROM maquinas as m JOIN darkstore as d ON d.idEmpresa = m.fkDarkstore where fkDarkstore = ${idEmpresa}`
+    console.log("maquinas model");
+    const instrucao = `SELECT * FROM maquina where fkDarkstore = ${idEmpresa}`
+    return db.executar(instrucao)
+}
+
+const mostrar1 = (idEmpresa) => {
+    console.log("maquinas model");
+    const instrucao = `SELECT maquina.*, darkstore.nome FROM maquina join darkstore on maquina.fkDarkstore = darkstore.idDarkstore where fkDarkstore = ${idEmpresa}`
     return db.executar(instrucao)
 }
 const deletar = (idMaquina) => {
-    const instrucao = `DELETE * FROM maquinas where idMaquina = ${idMaquina}`
+    console.log("deletar models");
+    const instrucao = `DELETE FROM maquina where idMaquina = ${idMaquina}`
     return db.executar(instrucao)
 }
-const editar = (idMaquina, idDark, nomeMaquina) => {
-    const instrucao = `UPDATE maquina SET nomeMaquina = "${nomeMaquina}" WHERE idMaquina = ${idMaquina} and fkDarkStore = ${idDark};`
+const editar = (idMaquina, nomeMaquina) => {
+    const instrucao = `UPDATE maquina SET nomeMaquina = "${nomeMaquina}" WHERE idMaquina = ${idMaquina};`
     return db.executar(instrucao)
 }
 const totalMaquinas = (idMaquina, idDark) => {
@@ -28,6 +36,7 @@ const maquinasAtivas = (idMaquina, idDark) => {
 module.exports = {
     cadastro,
     mostrar,
+    mostrar1,
     deletar,
     editar,
     totalMaquinas,

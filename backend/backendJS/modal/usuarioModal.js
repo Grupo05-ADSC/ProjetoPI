@@ -4,8 +4,8 @@ const login = (email, senha) => {
     const instrucao = `SELECT * FROM empresa where email = "${email}" and senha = "${senha}"`
     return db.executar(instrucao)
 }
-const cadastro = (nome,email,senha,cnpj) => {
-    const instrucao = `INSERT INTO empresa(nomeEmpresa,email,senha,cnpj) VALUES('${nome}','${email}','${senha}',${cnpj});`
+const cadastro = (nome,email,senha,cnpj, plano) => {
+    const instrucao = `INSERT INTO empresa(nomeEmpresa,email,senha,cnpj,plano) VALUES('${nome}','${email}','${senha}',${cnpj},${plano});`
     return db.executar(instrucao)
 }
 const redefinirSenha = (senha, email) => {

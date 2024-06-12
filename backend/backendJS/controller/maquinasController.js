@@ -1,12 +1,33 @@
 const maquinasModal = require("../modal/maquinasModal")
 
 const mostrar = (req, res) => {
-    const idEmpresa = req.body.paramns
+    const idEmpresa = req.params.idEmpresa
+    // console.log('id dark mostrar controler ==> ',idEmpresa);
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})
     }else {
         maquinasModal.mostrar(idEmpresa)
+        .then(function(resposta) {
+            if(resposta.length > 0) {
+                return res.json({resposta})
+            }else {
+                return res.json({error: "Não foi encontrado nenhum valor"})
+            }
+        }).catch(erro => {
+            console.log(erro)
+        })
+    }
+}
+
+const mostrar1 = (req, res) => {
+    const idEmpresa = req.params.idEmpresa
+    console.log('id dark mostrar controler 2 ==> ',idEmpresa);
+
+    if(idEmpresa === 0 || idEmpresa === undefined) {
+        return res.json({error: "A variavel está undefined"})
+    }else {
+        maquinasModal.mostrar1(idEmpresa)
         .then(function(resposta) {
             if(resposta.length > 0) {
                 return res.json({resposta})
@@ -38,8 +59,11 @@ const cadastro = (req, res) => {
         })
     }
 }
+
 const deletar = (req, res) => {
-    const idMaquina = req.body.params
+    console.log("deletar controller");
+    const idMaquina = req.params.idMaquina;
+    console.log('Id maquina ==> ',idMaquina);
 
     if(idMaquina === undefined || idMaquina === 0) {
         return res.json({error: "As variaveis está undefined"})
@@ -57,26 +81,27 @@ const deletar = (req, res) => {
     }
 }
 const editar = async (req, res) => {
-    const { nomeMaquina } = req.body.nome;
-    const { idMaquina, idDark } = req.params;
+    const nomeMaquina = req.body.nome;
+    const { idMaquina } = req.params;
+    console.log('id maquina e nome maquina ==> ',idMaquina, nomeMaquina)
 
-    if (!idMaquina || !idDark || !nomeMaquina) {
+    if (!idMaquina || !nomeMaquina) {
         return res.json({ error: "As variáveis estão undefined" });
     }
 
     try {
-        const respostaEditar = await maquinasModal.editar(idMaquina, idDark, nomeMaquina);
+        const respostaEditar = await maquinasModal.editar(idMaquina, nomeMaquina);
         console.log("Resposta da edição da máquina:", respostaEditar);
 
         if (respostaEditar.affectedRows > 0) {
-            const respostaNome = await nomeMaquina.editar(idMaquina);
-            console.log("Resposta da edição do nome:", respostaNome);
+            // const respostaNome = await nomeMaquina.editar(idMaquina);
+            // console.log("Resposta da edição do nome:", respostaNome);
 
-            if (respostaNome.affectedRows > 0) {
+            // if (respostaNome.affectedRows > 0) {
                 return res.status(200).json({ message: "Máquina alterada!" });
-            } else {
-                return res.status(500).json({ message: "Erro ao editar o nome da máquina!" });
-            }
+            // } else {
+                // return res.status(500).json({ message: "Erro ao editar o nome da máquina!" });
+            // }
         } else {
             return res.status(500).json({ message: "Erro ao editar o nome da Máquina!" });
         }
@@ -90,7 +115,7 @@ const totalMaquinas = async (req, res) => {
     const { nomeMaquina } = req.body.nome;
     const { idMaquina, idDark } = req.params;
 
-    if (!nomeMaquina || !idEmpresa || !idMaquina) {
+    if (!nomeMaquina || !fkEmpresa || !idMaquina) {
         return res.json({ error: "As variáveis estão undefined" });
     }
 
@@ -120,7 +145,7 @@ const maquinasAtivas = async (req, res) => {
     const { nomeMaquina } = req.body.nome;
     const { idMaquina, idDark } = req.params;
 
-    if (!nomeMaquina || !idEmpresa || !idMaquina) {
+    if (!nomeMaquina || !fkEmpresa || !idMaquina) {
         return res.json({ error: "As variáveis estão undefined" });
     }
 
@@ -148,6 +173,7 @@ const maquinasAtivas = async (req, res) => {
 module.exports = {
     cadastro,
     mostrar,
+    mostrar1,
     deletar,
     editar,
     totalMaquinas,

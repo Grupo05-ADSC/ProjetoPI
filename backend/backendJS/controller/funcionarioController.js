@@ -2,6 +2,7 @@ const funcionarioModal = require("../modal/funcionarioModal")
 
 const mostrar = (req, res) => {
     const idEmpresa = req.params.idEmpresa
+    console.log("controller funcionario mostrar");
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})
@@ -46,7 +47,7 @@ const cadastro = (req, res) => {
     }
 }
 const deletar = (req, res) => {
-    const idEmpresa = req.params.idEmpresa
+    const idEmpresa = req.params.fkEmpresa
     const idFuncionario = req.params.idFuncionario
 
     if(idEmpresa === undefined || idFuncionario === undefined) {
@@ -70,6 +71,7 @@ const editar = (req, res) => {
     const idFuncionario = req.params.idFuncionario
     const nome = req.body.nome
     const email = req.body.email
+    const senha = req.body.senha
  
     if(nome === undefined || nome === "" ||
     email === undefined || email === "" ||
@@ -77,7 +79,7 @@ const editar = (req, res) => {
     idFuncionario === undefined || idFuncionario === "") {
      return res.status(400).json({error:"variaveis invalidas"})
     }else {
-         funcionarioModal.editar(nome, email, idEmpresa, idFuncionario)
+         funcionarioModal.editar(nome, email, idEmpresa, idFuncionario, senha)
          .then(resposta => {
              if(resposta) {
                  return res.status(200).json({messege: "funcionario alterado"})

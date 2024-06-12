@@ -4,6 +4,7 @@ const editar = (req, res) => {
     const idEmpresa = req.params.idEmpresa
     const senha = req.body.senha
     const email = req.body.email
+    console.log('console editar perfil ==> ',idEmpresa, senha, email);
  
     if(senha === undefined || senha === "" ||
     email === undefined || email === "" ||
