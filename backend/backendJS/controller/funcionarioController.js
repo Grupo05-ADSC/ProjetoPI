@@ -2,7 +2,6 @@ const funcionarioModal = require("../modal/funcionarioModal")
 
 const mostrar = (req, res) => {
     const idEmpresa = req.params.idEmpresa
-    console.log("controller funcionario mostrar");
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})

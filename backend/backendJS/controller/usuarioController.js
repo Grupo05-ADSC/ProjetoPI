@@ -1,48 +1,40 @@
 const usuarioModal = require("../modal/usuarioModal")
 const funcionarioModal = require("../modal/funcionarioModal")
-const login = (req, res) => {
+
+const login = async (req, res) => {
     const { email, senha } = req.body;
 
-    if (email === "" || senha === "") {
-        return res.json({ error: "Variáveis vazias" });
-    } else {
-        usuarioModal.login(email, senha)
-            .then(function(resposta) {
-                if (resposta && resposta.length === 1) {
-                    return res.json({
-                        idEmpresa: resposta[0].idEmpresa,
-                        nomeEmpresa: resposta[0].nomeEmpresa,
-                        email: resposta[0].email
-                    });
-                } else {
-                    if (resposta) {
-                        funcionarioModal.login(email, senha)
-                            .then(function(resposta2) {
-                                if (resposta2 && resposta2.length === 1) {
-                                    return res.json({
-                                        idFuncionario: resposta2[0].idFuncionario,
-                                        nomeFuncionario: resposta2[0].nomeFuncionario,
-                                        emailFuncionario: resposta2[0].emailFuncionario,
-                                        idEmpresa: resposta2[0].fkEmpresa,
-                                        cargo: resposta2[0].cargo
-                                    });
-                                } else {
-                                    return res.status(500).json({ error: "Funcionário inválido" });
-                                }
-                            })
-                            .catch(erro => {
-                                console.log(erro);
-                                return res.status(500).json({ error: "Erro no login do funcionário" });
-                            });
-                    } else {
-                        return res.status(500).json({ error: "Usuário inválido" });
-                    }
-                }
-            })
-            .catch(erro => {
-                console.log("Ocorreu um erro no back-end: " + erro);
-                return res.status(500).json({ error: "Erro no login da empresa" });
+    if (!email || !senha) {
+        return res.status(400).json({ error: "Variáveis vazias" });
+    }
+
+    try {
+        const respostaEmpresa = await usuarioModal.login(email, senha);
+        if (respostaEmpresa && respostaEmpresa.length === 1) {
+            console.log(respostaEmpresa)
+            return res.json({
+                idEmpresa: respostaEmpresa[0].idEmpresa,
+                nomeEmpresa: respostaEmpresa[0].nomeEmpresa,
+                email: respostaEmpresa[0].email
             });
+        }
+
+        const respostaFuncionario = await funcionarioModal.login(email, senha);
+        if (respostaFuncionario && respostaFuncionario.length === 1) {
+            console.log(respostaFuncionario)
+            return res.json({
+                idFuncionario: respostaFuncionario[0].idFuncionario,
+                nomeFuncionario: respostaFuncionario[0].nomeFuncionario,
+                emailFuncionario: respostaFuncionario[0].emailFuncionario,
+                idEmpresa: respostaFuncionario[0].fkEmpresa,
+                cargo: respostaFuncionario[0].cargo
+            });
+        } else {
+            return res.status(401).json({ error: "Usuário ou funcionário inválido" });
+        }
+    } catch (erro) {
+        console.error("Ocorreu um erro no back-end:", erro);
+        return res.status(500).json({ error: "Erro no login" });
     }
 };
 
@@ -62,25 +54,34 @@ const cadastro = (req, res) => {
         }).catch(erro => console.log(erro))
     }
 }
-const redefinirSenha = (req, res) => {
+const redefinirSenha = async (req, res) => {
     const { email, senha } = req.body;
 
     if (!email || !senha) {
         return res.status(400).json({ error: "Senha ou email está undefined" });
-    } else {
-        usuarioModal.redefinirSenha(senha, email)
-            .then(function (resultado) {
-                if (resultado.affectedRows > 0) {
-                    return res.status(200).json({ message: "A senha foi trocada com sucesso!" });
-                } else {
-                    return res.status(404).json({ error: "Email não encontrado" });
-                }
-            }).catch(erro => {
-                console.log(erro);
-                return res.status(500).json({ error: "Erro ao trocar a senha" });
-            });
+    }
+
+    try {
+        const [mysqlResult, mssqlResult] = await Promise.all([
+            usuarioModal.redefinirSenhaMySQL(senha, email),
+            usuarioModal.redefinirSenhaMSSQL(senha, email)
+        ]);
+        const mysqlSuccess = mysqlResult.affectedRows > 0;
+        const mssqlSuccess = mssqlResult.rowsAffected && mssqlResult.rowsAffected[0] > 0;
+
+        if (mysqlSuccess || mssqlSuccess) {
+            return res.status(200).json({ message: "A senha foi trocada com sucesso!" });
+        } else {
+            return res.status(404).json({ error: "Email não encontrado" });
+        }
+    } catch (erro) {
+        console.log(erro);
+        return res.status(500).json({ error: "Erro ao trocar a senha" });
     }
 };
+
+module.exports = { redefinirSenha };
+
 
 const informacoes = (req, res) => {
     const idUsuario = params.idUsuario

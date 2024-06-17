@@ -1,33 +1,13 @@
 const metricasModal = require("../modal/metricasModal")
 
 const mostrar = (req, res) => {
-    const idMetricas = req.params.idEmpresa
+    const idDarkStore = req.params.idDarkStore
     // console.log('id dark mostrar controler ==> ',idEmpresa);
 
-    if(idDark === 0 || idDark === undefined) {
+    if(idDarkStore === 0 || idDarkStore === undefined) {
         return res.json({error: "A variavel está undefined"})
     }else {
-        metricasModal.mostrar(idDark)
-        .then(function(resposta) {
-            if(resposta.length > 0) {
-                return res.json({resposta})
-            }else {
-                return res.json({error: "Não foi encontrado nenhum valor"})
-            }
-        }).catch(erro => {
-            console.log(erro)
-        })
-    }
-}
-
-const mostrar1 = (req, res) => {
-    const idDark = req.params.idDark
-    console.log('id dark mostrar controler 2 ==> ',idDark);
-
-    if(idDark === 0 || idDark === undefined) {
-        return res.json({error: "A variavel está undefined"})
-    }else {
-        metricasModal.mostrar1(idDark)
+        metricasModal.mostrar(idDarkStore)
         .then(function(resposta) {
             if(resposta.length > 0) {
                 return res.json({resposta})
@@ -62,14 +42,12 @@ const cadastro = (req, res) => {
 }
 
 const deletar = (req, res) => {
-    console.log("deletar controller");
-    const idMetricas = req.params.idMetricas;
-    console.log('Id maquina ==> ',idMetricas);
+    const idMetricaIdeal = req.params.idMetricaIdeal;
 
-    if(idMetricas === undefined || idMetricas === 0) {
+    if(idMetricaIdeal === undefined || idMetricaIdeal === 0) {
         return res.json({error: "As variaveis está undefined"})
     }else {
-        maquinasModal.deletar(idMaquina)
+        metricasModal.deletar(idMetricaIdeal)
         .then(function(resposta) {
             if(resposta) {
                 return res.json({messege: "Maquina removida"})
@@ -85,7 +63,6 @@ const editar = async (req, res) => {
     const alertaMetrica = req.body.alerta;
     const criticoMetrica = req.body.critico;
     const { idMetricas } = req.params;
-    console.log('id, alerta e critico ==> ',idMetricas, alertaMetrica, criticoMetrica)
 
     if (!idMetricas || !alertaMetrica || !criticoMetrica) {
         return res.json({ error: "As variáveis estão undefined" });
@@ -115,7 +92,6 @@ const editar = async (req, res) => {
 module.exports = {
     cadastro,
     mostrar,
-    mostrar1,
     deletar,
     editar
 }

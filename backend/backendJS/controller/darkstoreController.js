@@ -3,7 +3,6 @@ const enderecoModal = require("../modal/enderecoModal")
 
 const mostrar = (req, res) => {
     const idEmpresa = req.params.idEmpresa;
-    console.log("controller dark mostrar");
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})
@@ -22,38 +21,51 @@ const mostrar = (req, res) => {
 }
 
 const cadastrar = async (req, res) => {
-    const { nome, cep, numero, bairro, estado, rua, cidade, empresa } = req.body;
-    // const { empresa } = req.params;
+    const { nome, cep, numero, bairro, estado, rua, cidade } = req.body;
+    const idEmpresa = req.params.idEmpresa;
 
-    if (!nome || !empresa || !rua || !cep || !estado || !bairro || !cidade || !numero) {
-        return res.json({ error: "As variáveis estão undefined" });
+    if (!nome || !idEmpresa || !rua || !cep || !estado || !bairro || !cidade || !numero) {
+        return res.status(400).json({ error: "Algumas variáveis estão undefined" });
     }
+
     try {
-        const respostaCadastrar = await darkstoreModal.cadastrar(nome, empresa);
-
-        if (respostaCadastrar) {
-            const respostaId = await darkstoreModal.mostrar2(empresa, nome);
-            const idDarkStore = respostaId[0].idDarkstore;
-
-            if (idDarkStore) {
-                const respostaEndereco = await enderecoModal.cadastro(idDarkStore, cep, estado, cidade, bairro, rua, numero);
-                
-                if (respostaEndereco) {
-                    return res.status(200).json({ message: "DarkStore cadastrada!" });
-                } else {
-                    return res.status(500).json({ message: "Erro ao cadastrar o endereço da DarkStore!" });
-                }
-            } else {
-                return res.status(500).json({ error: "Erro ao obter o ID da DarkStore!" });
-            }
-        } else {
+        // Cadastrar a darkstore
+        const respostaCadastrar = await darkstoreModal.cadastrar(nome, idEmpresa);
+        if (!respostaCadastrar) {
             return res.status(500).json({ error: "Erro ao cadastrar a DarkStore!" });
         }
+
+        // Buscar o ID da darkstore recém-cadastrada
+        const respostaId = await darkstoreModal.mostrar2(idEmpresa, nome);
+        if (!respostaId || respostaId.recordset.length === 0) {
+            return res.status(500).json({ error: "Erro ao obter o ID da DarkStore!" });
+        }
+        
+        // Verificar se há mais de uma darkstore encontrada com o mesmo nome
+        const idsDarkStores = respostaId.recordset.map(item => item.idDarkstore);
+        if (idsDarkStores.length > 1) {
+            return res.status(500).json({ error: "Mais de uma DarkStore encontrada com o mesmo nome!" });
+        }
+
+        // Extrair o ID da darkstore
+        const idDarkStore = idsDarkStores[0];
+
+        // Cadastrar o endereço da darkstore
+        const respostaEndereco = await enderecoModal.cadastro(idDarkStore, cep, estado, cidade, bairro, rua, numero);
+        if (!respostaEndereco) {
+            return res.status(500).json({ error: "Erro ao cadastrar o endereço da DarkStore!" });
+        }
+
+        // Responder com sucesso
+        return res.status(200).json({ message: "DarkStore cadastrada com sucesso!" });
+
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({ error: "Erro na requisição!" });
     }
 }
+
+
 
 const deletar = (req, res) => {
     const idEmpresa = req.params.idEmpresa
@@ -62,7 +74,7 @@ const deletar = (req, res) => {
     if(idEmpresa === "" || idDark === "") {
         return res.json({error: "As variaveis está undefined"})
     }else {
-        darkstoreModal.deletarm(idEmpresa, idDark),darkstoreModal.deletar(idEmpresa, idDark)
+       darkstoreModal.deletar(idEmpresa, idDark)
         .then(function(resposta) {
             if(resposta) {
                 return res.json({messege: "Dark Store removida"})
@@ -77,7 +89,6 @@ const deletar = (req, res) => {
 const editar = async (req, res) => {
     const Nome = req.body.nome
     const idDark = req.params.idDark
-    console.log('nome controller ==> ',Nome);
 
     // const { nome } = req.body;
     // const { idDark } = req.params;

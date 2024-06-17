@@ -110,7 +110,7 @@ public class NotificacaoSlack {
     }
 
     public static void enviarMensagem(String mensagem) {
-        String webhookUrl = "https://hooks.slack.com/services/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";
+        String webhookUrl = "https://hooks.slack.com/services/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";
         String username = name;
         String channel = obterCanalDoBancoDeDados();
         Slack slack = createSlackInstance();

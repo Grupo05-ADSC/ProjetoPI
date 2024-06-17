@@ -75,6 +75,7 @@ public class StopProcesso {
 
             if (respostaMySQL > 0 && respostaSQLServer > 0) {
                 System.out.println("Processo reativado em ambas as conexões!");
+                Processo.cadastrarProcesso(connMySQL,connSQLServer,idMaquina);
             } else {
                 System.out.println("Nenhum processo para desativar");
             }

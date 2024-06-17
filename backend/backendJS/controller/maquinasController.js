@@ -1,16 +1,16 @@
 const maquinasModal = require("../modal/maquinasModal")
 
 const mostrar = (req, res) => {
-    const idEmpresa = req.params.idEmpresa
-    // console.log('id dark mostrar controler ==> ',idEmpresa);
+    const idDarkstore = req.params.idDarkstore
+    // console.log('id dark mostrar controler ==> ',idDarkstore);
 
-    if(idEmpresa === 0 || idEmpresa === undefined) {
+    if(idDarkstore === 0 || idDarkstore === undefined) {
         return res.json({error: "A variavel está undefined"})
     }else {
-        maquinasModal.mostrar(idEmpresa)
+        maquinasModal.mostrar(idDarkstore)
         .then(function(resposta) {
             if(resposta.length > 0) {
-                return res.json({resposta})
+                return res.status(200).json({resposta})
             }else {
                 return res.json({error: "Não foi encontrado nenhum valor"})
             }
@@ -22,7 +22,6 @@ const mostrar = (req, res) => {
 
 const mostrar1 = (req, res) => {
     const idEmpresa = req.params.idEmpresa
-    console.log('id dark mostrar controler 2 ==> ',idEmpresa);
 
     if(idEmpresa === 0 || idEmpresa === undefined) {
         return res.json({error: "A variavel está undefined"})
@@ -61,9 +60,7 @@ const cadastro = (req, res) => {
 }
 
 const deletar = (req, res) => {
-    console.log("deletar controller");
     const idMaquina = req.params.idMaquina;
-    console.log('Id maquina ==> ',idMaquina);
 
     if(idMaquina === undefined || idMaquina === 0) {
         return res.json({error: "As variaveis está undefined"})
@@ -83,8 +80,7 @@ const deletar = (req, res) => {
 const editar = async (req, res) => {
     const nomeMaquina = req.body.nome;
     const { idMaquina } = req.params;
-    console.log('id maquina e nome maquina ==> ',idMaquina, nomeMaquina)
-
+    
     if (!idMaquina || !nomeMaquina) {
         return res.json({ error: "As variáveis estão undefined" });
     }
@@ -112,32 +108,21 @@ const editar = async (req, res) => {
 }
 
 const totalMaquinas = async (req, res) => {
-    const { nomeMaquina } = req.body.nome;
-    const { idMaquina, idDark } = req.params;
+    const idDark = req.params.idDark;
 
-    if (!nomeMaquina || !fkEmpresa || !idMaquina) {
-        return res.json({ error: "As variáveis estão undefined" });
-    }
-
-    try {
-        const respostaTotalMaquinas = await maquinasModal.totalMaquinas(idMaquina, idDark);
-        console.log("Resposta da edição da máquina:", respostaTotalMaquinas);
-
-        if (respostaTotalMaquinas.affectedRows > 0) {
-            const respostaNome = await nomeMaquina.totalMaquinas(idMaquina);
-            console.log("Resposta de total de máquinas:", respostaNome);
-
-            if (respostaNome.affectedRows > 0) {
-                return res.status(200).json({ message: "Máquinas!" });
-            } else {
-                return res.status(500).json({ message: "Erro ao bsucar o total de máquinas!" });
+    if(!idDark) {
+        return res.status(500).json({messege:"Dark inválida"})
+    }else {
+        maquinasModal.totalMaquinas(idDark)
+        .then(function(resposta) {
+            if(resposta) {
+                return res.json({resposta})
+            }else {
+                return res.status(400).json({messege: "Deu ruim no controller"})
             }
-        } else {
-            return res.status(500).json({ message: "Erro ao bsucar o total de máquinas!" });
-        }
-    } catch (error) {
-        console.log("Erro na edição:", error);
-        return res.status(500).json({ error: "Erro na requisição!" });
+        }).catch(erro => {
+            console.log(erro)
+        })
     }
 }
 
@@ -155,8 +140,7 @@ const maquinasAtivas = async (req, res) => {
 
         if (respostaMaquinasAtivas.affectedRows > 0) {
             const respostaNome = await nomeMaquina.maquinasAtivas(idMaquina);
-            console.log("Resposta de total de máquinas ativas:", respostaNome);
-
+        
             if (respostaNome.affectedRows > 0) {
                 return res.status(200).json({ message: "Máquinas ativas encontradas!" });
             } else {
