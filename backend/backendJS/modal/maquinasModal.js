@@ -21,11 +21,11 @@ const mostrar = (idDarkstore) => {
   return db.executar(instrucao); // Mostrar apenas do MySQL
 };
 
-const mostrar1 = (idEmpresa) => {
+const mostrar1 = (idDarkStore) => {
   const instrucao = `SELECT maquina.*, darkstore.nome 
                      FROM maquina 
                      JOIN darkstore ON maquina.fkDarkstore = darkstore.idDarkstore 
-                     WHERE fkDarkstore = ${idEmpresa}`;
+                     WHERE fkDarkstore = ${idDarkStore}`;
   return db.executar(instrucao); // Mostrar apenas do MySQL
 };
 
@@ -34,9 +34,9 @@ const deletar = (idMaquina) => {
   return executarEmAmbos(instrucao);
 };
 
-const editar = (idMaquina, nomeMaquina) => {
+const editar = (idMaquina, nomeMaquina,darkEscolhida) => {
   const instrucao = `UPDATE maquina 
-                     SET nomeMaquina = '${nomeMaquina}' 
+                     SET nomeMaquina = '${nomeMaquina}', fkDarkStore = ${darkEscolhida} 
                      WHERE idMaquina = ${idMaquina}`;
   return executarEmAmbos(instrucao);
 };

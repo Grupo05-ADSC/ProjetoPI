@@ -1,15 +1,18 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const cors = require("cors");
 const path = require('path');
+const cors = require('cors');
 
-app.use(express.json());
+// Configurar o ambiente de processo
+process.env.AMBIENTE_PROCESSO = "producao"; // Ou "desenvolvimento"
+const PORTA = process.env.AMBIENTE_PROCESSO === "producao" ? 3000 : 3000;
+
+// Configurar CORS
 app.use(cors());
 
-// Serve static files if needed
-app.use(express.static(path.join(__dirname, 'routes')));
+app.use(express.json());
 
-// Import route files
+// Outras rotas
 const Rota1 = require("./routes/usuarioRouter");
 const Rota2 = require("./routes/darkstoreRouter"); 
 const Rota3 = require("./routes/funcionarioRouter");
@@ -20,17 +23,17 @@ const Rota7 = require("./routes/graficosRouter");
 const Rota8 = require("./routes/slackRouter");
 const Rota9 = require("./routes/processoRouter");
 
-// Use route files
-app.use(Rota1);
-app.use(Rota2); // Ensure this is used
-app.use(Rota3);
-app.use(Rota4);
-app.use(Rota5);
-app.use(Rota6);
-app.use(Rota7);
-app.use(Rota8);
-app.use(Rota9);
+app.use('/usuario', Rota1);
+app.use('/darkstore', Rota2);
+app.use('/funcionario', Rota3);
+app.use('/perfil', Rota4);
+app.use('/maquinas', Rota5);
+app.use('/metricas', Rota6);
+app.use('/graficos', Rota7);
+app.use('/slack', Rota8);
+app.use('/processo', Rota9);
 
-app.listen(3000, () => {
-    console.log("Servidor ativo http://localhost:3000");
+// Iniciar o servidor
+app.listen(PORTA, function () {
+    console.log(`Servidor ativo: http://localhost:${PORTA}`);
 });

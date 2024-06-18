@@ -21,12 +21,12 @@ const mostrar = (req, res) => {
 }
 
 const mostrar1 = (req, res) => {
-    const idEmpresa = req.params.idEmpresa
+    const idDarkStore = req.params.idDarkStore
 
-    if(idEmpresa === 0 || idEmpresa === undefined) {
+    if(idDarkStore === 0 || idDarkStore === undefined) {
         return res.json({error: "A variavel está undefined"})
     }else {
-        maquinasModal.mostrar1(idEmpresa)
+        maquinasModal.mostrar1(idDarkStore)
         .then(function(resposta) {
             if(resposta.length > 0) {
                 return res.json({resposta})
@@ -79,14 +79,15 @@ const deletar = (req, res) => {
 }
 const editar = async (req, res) => {
     const nomeMaquina = req.body.nome;
+    const darkEscolhida = req.body.darkEscolhida;
     const { idMaquina } = req.params;
     
-    if (!idMaquina || !nomeMaquina) {
+    if (!idMaquina || !nomeMaquina || !darkEscolhida) {
         return res.json({ error: "As variáveis estão undefined" });
     }
 
     try {
-        const respostaEditar = await maquinasModal.editar(idMaquina, nomeMaquina);
+        const respostaEditar = await maquinasModal.editar(idMaquina, nomeMaquina, darkEscolhida);
         console.log("Resposta da edição da máquina:", respostaEditar);
 
         if (respostaEditar.affectedRows > 0) {
