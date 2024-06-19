@@ -6,7 +6,7 @@ const maquinasController = require('../controller/maquinasController.js')
 router.get("/maquinas/:idDarkstore", (req, res) => {
     maquinasController.mostrar(req, res)
 })
-router.get("/maquinass/:idEmpresa", (req, res) => {
+router.get("/maquinass/:idDarkStore", (req, res) => {
     maquinasController.mostrar1(req, res)
 })
 router.post("/cadastro/:idDarkStore", (req, res) => {

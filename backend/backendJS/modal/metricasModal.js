@@ -11,9 +11,9 @@ const executarEmAmbos = (instrucao) => {
     });
 };
 
-const cadastro = (alerta, critico, idDark) => {
+const cadastro = (alerta, critico, darkEscolhida) => {
   const instrucao = `INSERT INTO metrica_ideal(alertaCPU, alertaRAM, alertaDisco, criticoCPU, criticoRAM, criticoDisco, fkDarkstore) 
-                     VALUES(${alerta}, ${alerta}, ${alerta}, ${critico}, ${critico}, ${critico}, ${idDark})`;
+                     VALUES(${alerta}, ${alerta}, ${alerta}, ${critico}, ${critico}, ${critico}, ${darkEscolhida})`;
   return executarEmAmbos(instrucao);
 };
 
