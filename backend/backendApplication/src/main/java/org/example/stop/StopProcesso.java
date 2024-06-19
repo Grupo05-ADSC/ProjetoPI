@@ -28,36 +28,38 @@ public class StopProcesso {
 
             if (respostaMySQL.next() || respostaSQLServer.next()) {
                 try {
-                    PidProcesso.extrairPid(connMySQL,connSQLServer, idMaquina);
+                    PidProcesso.extrairPid(connMySQL, connSQLServer, idMaquina);
                 } catch (SQLException e) {
                     e.printStackTrace();
                     System.err.println("Erro ao extrair PID: " + e.getMessage());
                 }
             } else {
                 System.out.println("Nenhum processo para desativar");
-                Processo.cadastrarProcesso(connMySQL,connSQLServer ,idMaquina);
+                Processo.cadastrarProcesso(connMySQL, connSQLServer, idMaquina);
             }
         }
     }
 
-
     public static void desativarProcesso(Connection connMySQL, Connection connSQLServer, int pid, int idMaquina) {
+        String os = System.getProperty("os.name").toLowerCase();
+        String command;
+
+        if (os.contains("win")) {
+            // Comando para matar o processo no Windows
+            command = "taskkill /F /PID " + pid;
+        } else {
+            // Comando para matar o processo no Linux/Unix
+            command = "kill -9 " + pid;
+        }
+
         try {
-            // Comando para matar o processo (exemplo para Windows)
-            String command = "taskkill /F /PID " + pid;
-
-            // Para Linux/Unix use:
-            // String command = "kill -9 " + pid;
-
             Process process = Runtime.getRuntime().exec(command);
             process.waitFor();
-
             reativarProcesso(connMySQL, connSQLServer, idMaquina, pid);
         } catch (IOException | InterruptedException | SQLException e) {
             e.printStackTrace();
         }
     }
-
 
     public static void reativarProcesso(Connection connMySQL, Connection connSQLServer, int idMaquina, int pid) throws SQLException {
         String sql = "DELETE FROM processos WHERE fkMaquina = ? AND pid = ?";
@@ -75,12 +77,10 @@ public class StopProcesso {
 
             if (respostaMySQL > 0 && respostaSQLServer > 0) {
                 System.out.println("Processo reativado em ambas as conexões!");
-                Processo.cadastrarProcesso(connMySQL,connSQLServer,idMaquina);
+                Processo.cadastrarProcesso(connMySQL, connSQLServer, idMaquina);
             } else {
                 System.out.println("Nenhum processo para desativar");
             }
         }
     }
-
-
 }

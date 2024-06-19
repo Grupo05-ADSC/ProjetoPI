@@ -1,5 +1,6 @@
 package org.example.registros;
 
+import org.example.componentes.PegarComponente;
 import org.example.darkstore.Darkstore;
 import org.example.slack.NotificacaoSlack;
 import org.example.stop.StopProcesso;
@@ -20,7 +21,7 @@ public class RegistroTotal {
 
             String dadoDisco = DiscoRegistro.extrairDisco();
             dadoDisco = dadoDisco.replace(',', '.');
-            int fkComponente = 1;
+            int fkComponente = PegarComponente.pegarIdDisco(connMySQL, connSQLServer, idMaquina);
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 
@@ -61,7 +62,7 @@ public class RegistroTotal {
             String dadoRam = RamRegistro.extrairRam();
             dadoRam = dadoRam.replace(',', '.');
             dadoRam = removeUnidade(dadoRam);
-            int fkComponente = 2;
+            int fkComponente = PegarComponente.pegarIdRam(connMySQL, connSQLServer, idMaquina);
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 
@@ -102,7 +103,7 @@ public class RegistroTotal {
             String dadoCPU = ProcessadorRegistro.extrairCPU();
             dadoCPU = dadoCPU.replace(',', '.');
             dadoCPU = removeUnidade(dadoCPU);
-            int fkComponente = 3;
+            int fkComponente = PegarComponente.pegarIdCPU(connMySQL, connSQLServer, idMaquina);
             int fkDarkstore = Darkstore.pegarDarkStore(connMySQL, connSQLServer, idMaquina);
             int fkMetricaIdeal = Darkstore.pegarMetricaIdeal(connMySQL, connSQLServer, fkDarkstore);
 

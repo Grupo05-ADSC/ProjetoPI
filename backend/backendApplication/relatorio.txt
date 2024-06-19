@@ -1,55 +1,55 @@
 Identificador da maquina: BFEBFBFF00040651
 
-IP atual da maquina: 192.168.15.18
+IP atual da maquina: 10.18.7.52
 
 Top 10 Processos que estão consumindo mais:
 PID do Processo: 0
 Uso
 Uso da Memória: 0.0MB
-Uso do CPU: 98.5%
+Uso do CPU: 90.4%
 
-PID do Processo: 13092
+PID do Processo: 15784
 Uso
 Uso da Memória: 1.2MB
-Uso do CPU: 92.3%
+Uso do CPU: 73.4%
 
-PID do Processo: 24300
-Uso
-Uso da Memória: 23.5MB
-Uso do CPU: 78.2%
-
-PID do Processo: 28044
-Uso
-Uso da Memória: 5.1MB
-Uso do CPU: 36.6%
-
-PID do Processo: 25100
+PID do Processo: 15648
 Uso
 Uso da Memória: 1.1MB
-Uso do CPU: 36.4%
+Uso do CPU: 35.6%
 
-PID do Processo: 20416
+PID do Processo: 13520
 Uso
-Uso da Memória: 3.5MB
-Uso do CPU: 7.2%
+Uso da Memória: 0.1MB
+Uso do CPU: 19.7%
 
-PID do Processo: 22464
+PID do Processo: 10884
 Uso
-Uso da Memória: 2.1MB
-Uso do CPU: 5.1%
+Uso da Memória: 16.1MB
+Uso do CPU: 19.5%
 
-PID do Processo: 25824
+PID do Processo: 15208
+Uso
+Uso da Memória: 1.8MB
+Uso do CPU: 5.2%
+
+PID do Processo: 20852
+Uso
+Uso da Memória: 1.0MB
+Uso do CPU: 4.7%
+
+PID do Processo: 884
 Uso
 Uso da Memória: 0.3MB
+Uso do CPU: 4.0%
+
+PID do Processo: 6840
+Uso
+Uso da Memória: 1.1MB
+Uso do CPU: 3.7%
+
+PID do Processo: 8524
+Uso
+Uso da Memória: 2.2MB
 Uso do CPU: 3.3%
-
-PID do Processo: 22504
-Uso
-Uso da Memória: 1.2MB
-Uso do CPU: 1.8%
-
-PID do Processo: 16192
-Uso
-Uso da Memória: 0.5MB
-Uso do CPU: 1.5%
 
